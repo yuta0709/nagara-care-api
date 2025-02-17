@@ -9,6 +9,7 @@ import { FoodRecordsModule } from './food-records/food-records.module';
 import { BathRecordsModule } from './bath-records/bath-records.module';
 import { EliminationRecordsModule } from './elimination-records/elimination-records.module';
 import { DailyRecordsModule } from './daily-records/daily-records.module';
+import { BeverageRecordsModule } from './beverage-records/beverage-records.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { DailyRecordsModule } from './daily-records/daily-records.module';
     BathRecordsModule,
     EliminationRecordsModule,
     DailyRecordsModule,
+    BeverageRecordsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
