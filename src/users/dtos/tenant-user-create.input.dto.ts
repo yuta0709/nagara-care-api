@@ -37,7 +37,7 @@ export class TenantUserCreateInputDto {
   @IsEnum(UserRole, {
     message: 'ユーザー権限はTENANT_ADMINかCAREGIVERのみ指定できます',
   })
-  role: string;
+  role: UserRole;
 
   tenantUid: string;
 }

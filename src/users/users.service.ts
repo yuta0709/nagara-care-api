@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { User, UserRole } from '@prisma/client';
 import { TenantUserCreateInputDto } from './dtos/tenant-user-create.input.dto';
 import { UserCreateGlobalAdmin } from './dtos/user-create-global-admin.input.dto';
@@ -10,6 +15,7 @@ import {
 } from './dtos/user-list.output.dto';
 import { plainToInstance } from 'class-transformer';
 import { UserDto } from './dtos/user.output.dto';
+import { UserUpdateInputDto } from './dtos/user-update.input.dto';
 
 @Injectable()
 export class UsersService {
@@ -51,15 +57,17 @@ export class UsersService {
       currentUser.role === UserRole.TENANT_ADMIN &&
       currentUser.tenantUid !== input.tenantUid
     ) {
-      throw new Error('Cannot create user for other tenants');
+      throw new UnauthorizedException(
+        '他のテナントにユーザーを作成する権限がありません',
+      );
     }
 
-    // ユーザー権限がTENANT_ADMINかCAREGIVERのみ指定できる
+    // TENANT_ADMINはGLOBAL_ADMINを作成できない
     if (
-      input.role !== UserRole.TENANT_ADMIN &&
-      input.role !== UserRole.CAREGIVER
+      currentUser.role === UserRole.TENANT_ADMIN &&
+      input.role === UserRole.GLOBAL_ADMIN
     ) {
-      throw new Error('Invalid user role');
+      throw new UnauthorizedException('GLOBAL_ADMINを作成する権限がありません');
     }
 
     const passwordDigest = await bcrypt.hash(input.password, 10);
@@ -67,7 +75,7 @@ export class UsersService {
     const user = await this.prisma.user.create({
       data: {
         loginId: input.loginId,
-        passwordDigest: passwordDigest,
+        passwordDigest,
         familyName: input.familyName,
         givenName: input.givenName,
         familyNameFurigana: input.familyNameFurigana,
@@ -114,5 +122,82 @@ export class UsersService {
     return plainToInstance(UserDto, user, {
       excludeExtraneousValues: true,
     });
+  }
+
+  async update(
+    uid: string,
+    input: UserUpdateInputDto,
+    currentUser: User,
+  ): Promise<UserDto> {
+    const targetUser = await this.prisma.user.findUnique({ where: { uid } });
+    if (!targetUser) {
+      throw new NotFoundException(`User with uid ${uid} not found`);
+    }
+
+    // TENANT_ADMINは自身のテナントのユーザーのみ更新可能
+    if (
+      currentUser.role === UserRole.TENANT_ADMIN &&
+      targetUser.tenantUid !== currentUser.tenantUid
+    ) {
+      throw new UnauthorizedException(
+        '他のテナントのユーザーを更新する権限がありません',
+      );
+    }
+
+    // TENANT_ADMINはGLOBAL_ADMINに変更できない
+    if (
+      currentUser.role === UserRole.TENANT_ADMIN &&
+      input.role === UserRole.GLOBAL_ADMIN
+    ) {
+      throw new UnauthorizedException(
+        'ユーザーをGLOBAL_ADMINに変更する権限がありません',
+      );
+    }
+
+    // GLOBAL_ADMINのロールはGLOBAL_ADMINのみ変更可能
+    if (
+      targetUser.role === UserRole.GLOBAL_ADMIN &&
+      currentUser.role !== UserRole.GLOBAL_ADMIN
+    ) {
+      throw new UnauthorizedException(
+        'GLOBAL_ADMINのロールを変更する権限がありません',
+      );
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { uid },
+      data: input,
+    });
+
+    return plainToInstance(UserDto, updatedUser, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async delete(uid: string, currentUser: User): Promise<void> {
+    const targetUser = await this.prisma.user.findUnique({ where: { uid } });
+    if (!targetUser) {
+      throw new NotFoundException(`User with uid ${uid} not found`);
+    }
+
+    // TENANT_ADMINは自身のテナントのユーザーのみ削除可能
+    if (
+      currentUser.role === UserRole.TENANT_ADMIN &&
+      targetUser.tenantUid !== currentUser.tenantUid
+    ) {
+      throw new UnauthorizedException(
+        '他のテナントのユーザーを削除する権限がありません',
+      );
+    }
+
+    // GLOBAL_ADMINは他のGLOBAL_ADMINのみ削除可能
+    if (
+      targetUser.role === UserRole.GLOBAL_ADMIN &&
+      currentUser.role !== UserRole.GLOBAL_ADMIN
+    ) {
+      throw new UnauthorizedException('GLOBAL_ADMINを削除する権限がありません');
+    }
+
+    await this.prisma.user.delete({ where: { uid } });
   }
 }

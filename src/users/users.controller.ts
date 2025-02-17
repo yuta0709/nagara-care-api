@@ -1,6 +1,15 @@
-import { Body, Controller, Get, Post, Param, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { TenantUserCreateInputDto } from './dtos/tenant-user-create.input.dto';
+import { UserUpdateInputDto } from './dtos/user-update.input.dto';
 import { Authorize } from '../auth/roles.guard';
 import { UserRole } from '@prisma/client';
 import {
@@ -9,7 +18,6 @@ import {
   ApiResponse,
   ApiTags,
   ApiParam,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { User as UserDecorator } from './user.decorator';
@@ -57,8 +65,42 @@ export class UsersController {
     @Param('tenantUid') tenantUid: string,
     @Body() input: TenantUserCreateInputDto,
     @UserDecorator() user: User,
-  ) {
+  ): Promise<UserDto> {
     input.tenantUid = tenantUid;
     return this.usersService.createTenantUser(input, user);
+  }
+
+  @Patch('users/:uid')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'ユーザーを更新' })
+  @ApiParam({ name: 'uid', description: 'ユーザーUID' })
+  @ApiResponse({
+    status: 200,
+    description: 'ユーザーの更新に成功',
+    type: UserDto,
+  })
+  updateUser(
+    @Param('uid') uid: string,
+    @Body() input: UserUpdateInputDto,
+    @UserDecorator() user: User,
+  ): Promise<UserDto> {
+    return this.usersService.update(uid, input, user);
+  }
+
+  @Delete('users/:uid')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'ユーザーを削除' })
+  @ApiParam({ name: 'uid', description: 'ユーザーUID' })
+  @ApiResponse({
+    status: 200,
+    description: 'ユーザーの削除に成功',
+  })
+  deleteUser(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<void> {
+    return this.usersService.delete(uid, user);
   }
 }
