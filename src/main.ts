@@ -29,6 +29,15 @@ async function writeOpenAPISpec(app: any) {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // CORSを有効化
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN ?? '*', // 環境変数から許可するオリジンを設定、未設定の場合は全てのオリジンを許可
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Accept,Authorization',
+    credentials: true, // クッキーやHTTP認証を含むリクエストを許可
+  });
+
   app.useGlobalPipes(new ValidationPipe());
 
   const document = await writeOpenAPISpec(app);
