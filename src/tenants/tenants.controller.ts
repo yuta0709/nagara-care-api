@@ -4,11 +4,17 @@ import { TenantCreateInputDto } from './dtos/tenant-create.input.dto';
 
 import { Authorize } from '../auth/roles.guard';
 import { UserRole } from '@prisma/client';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { plainToClass } from 'class-transformer';
 import { TenantCreateOutputDto } from './dtos/tenant-create.output.dto';
 
 @ApiTags('tenants')
+@ApiBearerAuth('JWT-auth')
 @Controller('tenants')
 export class TenantsController {
   constructor(private readonly tenantsService: TenantsService) {}
