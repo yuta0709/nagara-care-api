@@ -1,0 +1,1878 @@
+openapi: 3.0.0
+paths:
+  /:
+    get:
+      operationId: AppController_getHello
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags:
+        - App
+  /auth/login:
+    post:
+      operationId: AuthController_signIn
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignInDto"
+      responses:
+        "200":
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenDto"
+      summary: ログイン
+      tags: &a1
+        - auth
+  /auth/me:
+    get:
+      operationId: AuthController_getProfile
+      parameters: []
+      responses:
+        "200":
+          description: ユーザー情報の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDto"
+      security:
+        - JWT-auth: []
+      summary: ログイン中のユーザー情報を取得
+      tags: *a1
+  /tenants/{tenantUid}/users:
+    get:
+      operationId: UsersController_findByTenant
+      parameters:
+        - name: tenantUid
+          required: false
+          in: path
+          description: テナントUID（GLOBAL_ADMINの場合、省略すると全テナントのユーザーを取得）
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ユーザー一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponseDto"
+      security:
+        - JWT-auth: []
+      summary: テナント内のユーザー一覧を取得
+      tags: &a2
+        - users
+    post:
+      operationId: UsersController_createUser
+      parameters:
+        - name: tenantUid
+          required: true
+          in: path
+          description: テナントUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TenantUserCreateInputDto"
+      responses:
+        "201":
+          description: ユーザーの作成に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDto"
+      security:
+        - JWT-auth: []
+      summary: テナントにユーザーを作成
+      tags: *a2
+  /users/{uid}:
+    patch:
+      operationId: UsersController_updateUser
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: ユーザーUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdateInputDto"
+      responses:
+        "200":
+          description: ユーザーの更新に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDto"
+      security:
+        - JWT-auth: []
+      summary: ユーザーを更新
+      tags: *a2
+    delete:
+      operationId: UsersController_deleteUser
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: ユーザーUID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ユーザーの削除に成功
+      security:
+        - JWT-auth: []
+      summary: ユーザーを削除
+      tags: *a2
+  /tenants:
+    get:
+      operationId: TenantsController_findAll
+      parameters: []
+      responses:
+        "200":
+          description: テナント一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantListResponseDto"
+      security:
+        - JWT-auth: []
+      summary: テナント一覧を取得
+      tags: &a3
+        - tenants
+    post:
+      operationId: TenantsController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TenantCreateInputDto"
+      responses:
+        "201":
+          description: テナントが正常に作成されました
+      summary: テナントを作成する
+      tags: *a3
+  /tenants/{uid}:
+    patch:
+      operationId: TenantsController_update
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: テナントUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TenantUpdateInputDto"
+      responses:
+        "200":
+          description: テナントの更新に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantCreateOutputDto"
+      security:
+        - JWT-auth: []
+      summary: テナントを更新
+      tags: *a3
+    delete:
+      operationId: TenantsController_delete
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: テナントUID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: テナントの削除に成功
+      security:
+        - JWT-auth: []
+      summary: テナントを削除
+      tags: *a3
+  /tenants/{tenantUid}/residents:
+    get:
+      operationId: ResidentsController_findByTenant
+      parameters:
+        - name: tenantUid
+          required: false
+          in: path
+          description: テナントUID（GLOBAL_ADMINの場合、省略すると全テナントの利用者を取得）
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 利用者一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResidentListResponseDto"
+      security:
+        - JWT-auth: []
+      summary: テナント内の利用者一覧を取得
+      tags: &a4
+        - residents
+    post:
+      operationId: ResidentsController_createResident
+      parameters:
+        - name: tenantUid
+          required: true
+          in: path
+          description: テナントUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResidentCreateInputDto"
+      responses:
+        "201":
+          description: 利用者の作成に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResidentDto"
+      security:
+        - JWT-auth: []
+      summary: テナントに利用者を作成
+      tags: *a4
+  /tenants/{tenantUid}/residents/{uid}:
+    patch:
+      operationId: ResidentsController_updateResident
+      parameters:
+        - name: tenantUid
+          required: true
+          in: path
+          description: テナントUID
+          schema:
+            type: string
+        - name: uid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResidentUpdateInputDto"
+      responses:
+        "200":
+          description: 利用者の更新に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResidentDto"
+      security:
+        - JWT-auth: []
+      summary: 利用者を更新
+      tags: *a4
+    delete:
+      operationId: ResidentsController_deleteResident
+      parameters:
+        - name: tenantUid
+          required: true
+          in: path
+          description: テナントUID
+          schema:
+            type: string
+        - name: uid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 利用者の削除に成功
+      security:
+        - JWT-auth: []
+      summary: 利用者を削除
+      tags: *a4
+  /residents/{residentUid}/food-records:
+    get:
+      operationId: FoodRecordsController_findByResident
+      parameters:
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 食事記録一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FoodRecordListResponseDto"
+      security:
+        - JWT-auth: []
+      summary: 利用者の食事記録一覧を取得
+      tags: &a5
+        - food-records
+    post:
+      operationId: FoodRecordsController_create
+      parameters:
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FoodRecordCreateInputDto"
+      responses:
+        "201":
+          description: 食事記録の作成に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FoodRecordDto"
+      security:
+        - JWT-auth: []
+      summary: 食事記録を作成
+      tags: *a5
+  /residents/{residentUid}/food-records/{uid}:
+    patch:
+      operationId: FoodRecordsController_update
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 食事記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FoodRecordUpdateInputDto"
+      responses:
+        "200":
+          description: 食事記録の更新に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FoodRecordDto"
+      security:
+        - JWT-auth: []
+      summary: 食事記録を更新
+      tags: *a5
+    delete:
+      operationId: FoodRecordsController_delete
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 食事記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 食事記録の削除に成功
+      security:
+        - JWT-auth: []
+      summary: 食事記録を削除
+      tags: *a5
+  /residents/{residentUid}/bath-records:
+    get:
+      operationId: BathRecordsController_findByResident
+      parameters:
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 入浴記録一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BathRecordListResponseDto"
+      security:
+        - JWT-auth: []
+      summary: 利用者の入浴記録一覧を取得
+      tags: &a6
+        - bath-records
+    post:
+      operationId: BathRecordsController_create
+      parameters:
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BathRecordCreateInputDto"
+      responses:
+        "201":
+          description: 入浴記録の作成に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BathRecordDto"
+      security:
+        - JWT-auth: []
+      summary: 入浴記録を作成
+      tags: *a6
+  /residents/{residentUid}/bath-records/{uid}:
+    patch:
+      operationId: BathRecordsController_update
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 入浴記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BathRecordUpdateInputDto"
+      responses:
+        "200":
+          description: 入浴記録の更新に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BathRecordDto"
+      security:
+        - JWT-auth: []
+      summary: 入浴記録を更新
+      tags: *a6
+    delete:
+      operationId: BathRecordsController_delete
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 入浴記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 入浴記録の削除に成功
+      security:
+        - JWT-auth: []
+      summary: 入浴記録を削除
+      tags: *a6
+  /residents/{residentUid}/elimination-records:
+    get:
+      operationId: EliminationRecordsController_findByResident
+      parameters:
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 排泄記録一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EliminationRecordListResponseDto"
+      security:
+        - JWT-auth: []
+      summary: 利用者の排泄記録一覧を取得
+      tags: &a7
+        - elimination-records
+    post:
+      operationId: EliminationRecordsController_create
+      parameters:
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EliminationRecordCreateInputDto"
+      responses:
+        "201":
+          description: 排泄記録の作成に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EliminationRecordDto"
+      security:
+        - JWT-auth: []
+      summary: 排泄記録を作成
+      tags: *a7
+  /residents/{residentUid}/elimination-records/{uid}:
+    patch:
+      operationId: EliminationRecordsController_update
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 排泄記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EliminationRecordUpdateInputDto"
+      responses:
+        "200":
+          description: 排泄記録の更新に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EliminationRecordDto"
+      security:
+        - JWT-auth: []
+      summary: 排泄記録を更新
+      tags: *a7
+    delete:
+      operationId: EliminationRecordsController_delete
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 排泄記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 排泄記録の削除に成功
+      security:
+        - JWT-auth: []
+      summary: 排泄記録を削除
+      tags: *a7
+  /residents/{residentUid}/daily-records:
+    get:
+      operationId: DailyRecordsController_findByResident
+      parameters:
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 日常記録一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyRecordListResponseDto"
+      security:
+        - JWT-auth: []
+      summary: 利用者の日常記録一覧を取得
+      tags: &a8
+        - daily-records
+    post:
+      operationId: DailyRecordsController_create
+      parameters:
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DailyRecordCreateInputDto"
+      responses:
+        "201":
+          description: 日常記録の作成に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyRecordDto"
+      security:
+        - JWT-auth: []
+      summary: 日常記録を作成
+      tags: *a8
+  /residents/{residentUid}/daily-records/{uid}:
+    patch:
+      operationId: DailyRecordsController_update
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 日常記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DailyRecordUpdateInputDto"
+      responses:
+        "200":
+          description: 日常記録の更新に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyRecordDto"
+      security:
+        - JWT-auth: []
+      summary: 日常記録を更新
+      tags: *a8
+    delete:
+      operationId: DailyRecordsController_delete
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 日常記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 日常記録の削除に成功
+      security:
+        - JWT-auth: []
+      summary: 日常記録を削除
+      tags: *a8
+  /residents/{residentUid}/beverage-records:
+    get:
+      operationId: BeverageRecordsController_findByResident
+      parameters:
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 飲料記録一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BeverageRecordListResponseDto"
+      security:
+        - JWT-auth: []
+      summary: 利用者の飲料記録一覧を取得
+      tags: &a9
+        - beverage-records
+    post:
+      operationId: BeverageRecordsController_create
+      parameters:
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BeverageRecordCreateInputDto"
+      responses:
+        "201":
+          description: 飲料記録の作成に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BeverageRecordDto"
+      security:
+        - JWT-auth: []
+      summary: 飲料記録を作成
+      tags: *a9
+  /residents/{residentUid}/beverage-records/{uid}:
+    patch:
+      operationId: BeverageRecordsController_update
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 飲料記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BeverageRecordUpdateInputDto"
+      responses:
+        "200":
+          description: 飲料記録の更新に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BeverageRecordDto"
+      security:
+        - JWT-auth: []
+      summary: 飲料記録を更新
+      tags: *a9
+    delete:
+      operationId: BeverageRecordsController_delete
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 飲料記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 飲料記録の削除に成功
+      security:
+        - JWT-auth: []
+      summary: 飲料記録を削除
+      tags: *a9
+info:
+  title: Nagara Care API
+  description: ""
+  version: "1.0"
+  contact: {}
+tags: []
+servers: []
+components:
+  securitySchemes:
+    JWT-auth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      name: JWT
+      description: Enter JWT token
+      in: header
+  schemas:
+    SignInDto:
+      type: object
+      properties:
+        loginId:
+          type: string
+        password:
+          type: string
+      required:
+        - loginId
+        - password
+    TokenDto:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWTトークン
+      required:
+        - token
+    UserDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: ユーザーUID
+        loginId:
+          type: string
+          description: ログインID
+        familyName:
+          type: string
+          description: 姓
+        givenName:
+          type: string
+          description: 名
+        familyNameFurigana:
+          type: string
+          description: 姓（フリガナ）
+        givenNameFurigana:
+          type: string
+          description: 名（フリガナ）
+        role:
+          type: string
+          description: ユーザー権限
+      required:
+        - uid
+        - loginId
+        - familyName
+        - givenName
+        - familyNameFurigana
+        - givenNameFurigana
+        - role
+    UserListItemDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: ユーザーUID
+        loginId:
+          type: string
+          description: ログインID
+        familyName:
+          type: string
+          description: 姓
+        givenName:
+          type: string
+          description: 名
+        familyNameFurigana:
+          type: string
+          description: 姓（フリガナ）
+        givenNameFurigana:
+          type: string
+          description: 名（フリガナ）
+        role:
+          type: string
+          description: ロール
+          enum:
+            - GLOBAL_ADMIN
+            - TENANT_ADMIN
+            - CAREGIVER
+        createdAt:
+          format: date-time
+          type: string
+          description: 作成日時
+      required:
+        - uid
+        - loginId
+        - familyName
+        - givenName
+        - familyNameFurigana
+        - givenNameFurigana
+        - role
+        - createdAt
+    UserListResponseDto:
+      type: object
+      properties:
+        items:
+          description: ユーザー一覧
+          type: array
+          items:
+            $ref: "#/components/schemas/UserListItemDto"
+        total:
+          type: number
+          description: 総件数
+      required:
+        - items
+        - total
+    TenantUserCreateInputDto:
+      type: object
+      properties:
+        loginId:
+          type: string
+          description: ログインID
+        password:
+          type: string
+          description: パスワード
+        familyName:
+          type: string
+          description: 姓
+        givenName:
+          type: string
+          description: 名
+        familyNameFurigana:
+          type: string
+          description: 姓（フリガナ）
+        givenNameFurigana:
+          type: string
+          description: 名（フリガナ）
+        role:
+          type: string
+          description: ユーザー権限
+      required:
+        - loginId
+        - password
+        - familyName
+        - givenName
+        - familyNameFurigana
+        - givenNameFurigana
+        - role
+    UserUpdateInputDto:
+      type: object
+      properties:
+        familyName:
+          type: string
+          description: 姓
+          example: 山田
+        givenName:
+          type: string
+          description: 名
+          example: 太郎
+        familyNameFurigana:
+          type: string
+          description: 姓（フリガナ）
+          example: ヤマダ
+        givenNameFurigana:
+          type: string
+          description: 名（フリガナ）
+          example: タロウ
+        role:
+          type: string
+          description: ユーザーロール
+          enum:
+            - GLOBAL_ADMIN
+            - TENANT_ADMIN
+            - CAREGIVER
+          example: CAREGIVER
+      required:
+        - familyName
+        - givenName
+        - familyNameFurigana
+        - givenNameFurigana
+        - role
+    TenantListItemDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: テナントUID
+        name:
+          type: string
+          description: テナント名
+        createdAt:
+          format: date-time
+          type: string
+          description: 作成日時
+      required:
+        - uid
+        - name
+        - createdAt
+    TenantListResponseDto:
+      type: object
+      properties:
+        items:
+          description: テナント一覧
+          type: array
+          items:
+            $ref: "#/components/schemas/TenantListItemDto"
+        total:
+          type: number
+          description: 総件数
+      required:
+        - items
+        - total
+    TenantCreateInputDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: テナント名
+          example: 介護施設A
+      required:
+        - name
+    TenantUpdateInputDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: テナント名
+          example: 介護施設A
+      required:
+        - name
+    TenantCreateOutputDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: テナントID
+        name:
+          type: string
+          description: テナント名
+        createdAt:
+          format: date-time
+          type: string
+          description: 作成日時
+      required:
+        - uid
+        - name
+        - createdAt
+    ResidentDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: UID
+        tenantUid:
+          type: string
+          description: テナントUID
+        familyName:
+          type: string
+          description: 姓
+        givenName:
+          type: string
+          description: 名
+        familyNameFurigana:
+          type: string
+          description: 姓（フリガナ）
+        givenNameFurigana:
+          type: string
+          description: 名（フリガナ）
+        dateOfBirth:
+          format: date-time
+          type: string
+          description: 生年月日
+        gender:
+          type: string
+          description: 性別
+          enum:
+            - MALE
+            - FEMALE
+        admissionDate:
+          format: date-time
+          type: string
+          description: 入所日
+        createdAt:
+          format: date-time
+          type: string
+          description: 作成日時
+      required:
+        - uid
+        - tenantUid
+        - familyName
+        - givenName
+        - familyNameFurigana
+        - givenNameFurigana
+        - dateOfBirth
+        - gender
+        - admissionDate
+        - createdAt
+    ResidentListResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResidentDto"
+        total:
+          type: number
+          description: 総件数
+      required:
+        - items
+        - total
+    ResidentCreateInputDto:
+      type: object
+      properties:
+        familyName:
+          type: string
+          description: 姓
+          example: 山田
+        givenName:
+          type: string
+          description: 名
+          example: 太郎
+        familyNameFurigana:
+          type: string
+          description: 姓（フリガナ）
+          example: ヤマダ
+        givenNameFurigana:
+          type: string
+          description: 名（フリガナ）
+          example: タロウ
+        dateOfBirth:
+          type: string
+          description: 生年月日
+          example: 1950-01-01
+        gender:
+          type: string
+          description: 性別
+          enum:
+            - MALE
+            - FEMALE
+          example: MALE
+        admissionDate:
+          type: string
+          description: 入所日
+          example: 2024-01-01
+      required:
+        - familyName
+        - givenName
+        - familyNameFurigana
+        - givenNameFurigana
+        - dateOfBirth
+        - gender
+        - admissionDate
+    ResidentUpdateInputDto:
+      type: object
+      properties:
+        familyName:
+          type: string
+          description: 姓
+          example: 山田
+        givenName:
+          type: string
+          description: 名
+          example: 太郎
+        familyNameFurigana:
+          type: string
+          description: 姓（フリガナ）
+          example: ヤマダ
+        givenNameFurigana:
+          type: string
+          description: 名（フリガナ）
+          example: タロウ
+        dateOfBirth:
+          type: string
+          description: 生年月日
+          example: 1950-01-01
+        gender:
+          type: string
+          description: 性別
+          enum:
+            - MALE
+            - FEMALE
+          example: MALE
+        admissionDate:
+          type: string
+          description: 入所日
+          example: 2024-01-01
+      required:
+        - familyName
+        - givenName
+        - familyNameFurigana
+        - givenNameFurigana
+        - dateOfBirth
+        - gender
+        - admissionDate
+    FoodRecordDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: UID
+        tenantUid:
+          type: string
+          description: テナントUID
+        caregiverUid:
+          type: string
+          description: 介護者UID
+        residentUid:
+          type: string
+          description: 利用者UID
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+        notes:
+          type: string
+          description: メモ
+        mealTime:
+          type: string
+          description: 食事の時間帯
+          enum:
+            - BREAKFAST
+            - LUNCH
+            - DINNER
+        mainCoursePercentage:
+          type: number
+          description: 主食の摂取率（%）
+        sideDishPercentage:
+          type: number
+          description: 副食の摂取率（%）
+        soupPercentage:
+          type: number
+          description: 汁物の摂取率（%）
+        beverageType:
+          type: string
+          description: 飲み物の種類
+          enum:
+            - WATER
+            - TEA
+            - OTHER
+        beverageVolume:
+          type: number
+          description: 飲み物の摂取量（ml）
+      required:
+        - uid
+        - tenantUid
+        - caregiverUid
+        - residentUid
+        - recordedAt
+        - notes
+        - mealTime
+        - mainCoursePercentage
+        - sideDishPercentage
+        - soupPercentage
+        - beverageType
+        - beverageVolume
+    FoodRecordListResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/FoodRecordDto"
+        total:
+          type: number
+          description: 総件数
+      required:
+        - items
+        - total
+    FoodRecordCreateInputDto:
+      type: object
+      properties:
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+          example: 2024-03-20T12:00:00Z
+        notes:
+          type: string
+          description: メモ
+        mealTime:
+          type: string
+          description: 食事の時間帯
+          enum:
+            - BREAKFAST
+            - LUNCH
+            - DINNER
+          example: LUNCH
+        mainCoursePercentage:
+          type: number
+          description: 主食の摂取率（%）
+          minimum: 0
+          maximum: 100
+          example: 80
+        sideDishPercentage:
+          type: number
+          description: 副食の摂取率（%）
+          minimum: 0
+          maximum: 100
+          example: 70
+        soupPercentage:
+          type: number
+          description: 汁物の摂取率（%）
+          minimum: 0
+          maximum: 100
+          example: 90
+        beverageType:
+          type: string
+          description: 飲み物の種類
+          enum:
+            - WATER
+            - TEA
+            - OTHER
+          example: WATER
+        beverageVolume:
+          type: number
+          description: 飲み物の摂取量（ml）
+          minimum: 0
+          example: 200
+      required:
+        - recordedAt
+        - mealTime
+        - mainCoursePercentage
+        - sideDishPercentage
+        - soupPercentage
+        - beverageType
+        - beverageVolume
+    FoodRecordUpdateInputDto:
+      type: object
+      properties:
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+          example: 2024-03-20T12:00:00Z
+        notes:
+          type: string
+          description: メモ
+        mealTime:
+          type: string
+          description: 食事の時間帯
+          enum:
+            - BREAKFAST
+            - LUNCH
+            - DINNER
+          example: LUNCH
+        mainCoursePercentage:
+          type: number
+          description: 主食の摂取率（%）
+          minimum: 0
+          maximum: 100
+          example: 80
+        sideDishPercentage:
+          type: number
+          description: 副食の摂取率（%）
+          minimum: 0
+          maximum: 100
+          example: 70
+        soupPercentage:
+          type: number
+          description: 汁物の摂取率（%）
+          minimum: 0
+          maximum: 100
+          example: 90
+        beverageType:
+          type: string
+          description: 飲み物の種類
+          enum:
+            - WATER
+            - TEA
+            - OTHER
+          example: WATER
+        beverageVolume:
+          type: number
+          description: 飲み物の摂取量（ml）
+          minimum: 0
+          example: 200
+      required:
+        - recordedAt
+        - mealTime
+        - mainCoursePercentage
+        - sideDishPercentage
+        - soupPercentage
+        - beverageType
+        - beverageVolume
+    BathRecordDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: UID
+        tenantUid:
+          type: string
+          description: テナントUID
+        caregiverUid:
+          type: string
+          description: 介護者UID
+        residentUid:
+          type: string
+          description: 利用者UID
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+        notes:
+          type: string
+          description: メモ
+        bathMethod:
+          type: string
+          description: 入浴方法
+      required:
+        - uid
+        - tenantUid
+        - caregiverUid
+        - residentUid
+        - recordedAt
+        - notes
+        - bathMethod
+    BathRecordListResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/BathRecordDto"
+        total:
+          type: number
+          description: 総件数
+      required:
+        - items
+        - total
+    BathRecordCreateInputDto:
+      type: object
+      properties:
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+          example: 2024-03-20T12:00:00Z
+        notes:
+          type: string
+          description: メモ
+        bathMethod:
+          type: string
+          description: 入浴方法
+          example: 一般浴
+      required:
+        - recordedAt
+        - bathMethod
+    BathRecordUpdateInputDto:
+      type: object
+      properties:
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+          example: 2024-03-20T12:00:00Z
+        notes:
+          type: string
+          description: メモ
+        bathMethod:
+          type: string
+          description: 入浴方法
+          example: 一般浴
+      required:
+        - recordedAt
+        - bathMethod
+    EliminationRecordDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: UID
+        tenantUid:
+          type: string
+          description: テナントUID
+        caregiverUid:
+          type: string
+          description: 介護者UID
+        residentUid:
+          type: string
+          description: 利用者UID
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+        notes:
+          type: string
+          description: メモ
+        eliminationMethod:
+          type: string
+          description: 排泄方法
+        hasFeces:
+          type: boolean
+          description: 便の有無
+        fecalIncontinence:
+          type: boolean
+          description: 便失禁の有無
+        fecesAppearance:
+          type: string
+          description: 便の性状
+        fecesVolume:
+          type: number
+          description: 便の量（g）
+        hasUrine:
+          type: boolean
+          description: 尿の有無
+        urinaryIncontinence:
+          type: boolean
+          description: 尿失禁の有無
+        urineAppearance:
+          type: string
+          description: 尿の性状
+        urineVolume:
+          type: number
+          description: 尿量（ml）
+      required:
+        - uid
+        - tenantUid
+        - caregiverUid
+        - residentUid
+        - recordedAt
+        - notes
+        - eliminationMethod
+        - hasFeces
+        - fecalIncontinence
+        - fecesAppearance
+        - fecesVolume
+        - hasUrine
+        - urinaryIncontinence
+        - urineAppearance
+        - urineVolume
+    EliminationRecordListResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/EliminationRecordDto"
+        total:
+          type: number
+          description: 総件数
+      required:
+        - items
+        - total
+    EliminationRecordCreateInputDto:
+      type: object
+      properties:
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+          example: 2024-03-20T12:00:00Z
+        notes:
+          type: string
+          description: メモ
+        eliminationMethod:
+          type: string
+          description: 排泄方法
+          example: トイレ
+        hasFeces:
+          type: boolean
+          description: 便の有無
+          example: true
+        fecalIncontinence:
+          type: boolean
+          description: 便失禁の有無
+          example: false
+        fecesAppearance:
+          type: string
+          description: 便の性状
+          example: 普通便
+        fecesVolume:
+          type: number
+          description: 便の量（g）
+          minimum: 0
+          example: 100
+        hasUrine:
+          type: boolean
+          description: 尿の有無
+          example: true
+        urinaryIncontinence:
+          type: boolean
+          description: 尿失禁の有無
+          example: false
+        urineAppearance:
+          type: string
+          description: 尿の性状
+          example: 普通
+        urineVolume:
+          type: number
+          description: 尿量（ml）
+          minimum: 0
+          example: 200
+      required:
+        - recordedAt
+        - eliminationMethod
+        - hasFeces
+        - hasUrine
+    EliminationRecordUpdateInputDto:
+      type: object
+      properties:
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+          example: 2024-03-20T12:00:00Z
+        notes:
+          type: string
+          description: メモ
+        eliminationMethod:
+          type: string
+          description: 排泄方法
+          example: トイレ
+        hasFeces:
+          type: boolean
+          description: 便の有無
+          example: true
+        fecalIncontinence:
+          type: boolean
+          description: 便失禁の有無
+          example: false
+        fecesAppearance:
+          type: string
+          description: 便の性状
+          example: 普通便
+        fecesVolume:
+          type: number
+          description: 便の量（g）
+          minimum: 0
+          example: 100
+        hasUrine:
+          type: boolean
+          description: 尿の有無
+          example: true
+        urinaryIncontinence:
+          type: boolean
+          description: 尿失禁の有無
+          example: false
+        urineAppearance:
+          type: string
+          description: 尿の性状
+          example: 普通
+        urineVolume:
+          type: number
+          description: 尿量（ml）
+          minimum: 0
+          example: 200
+      required:
+        - recordedAt
+        - eliminationMethod
+        - hasFeces
+        - hasUrine
+    DailyRecordDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: UID
+        tenantUid:
+          type: string
+          description: テナントUID
+        caregiverUid:
+          type: string
+          description: 介護者UID
+        residentUid:
+          type: string
+          description: 利用者UID
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+        notes:
+          type: string
+          description: メモ
+        dailyStatus:
+          type: string
+          description: 日常の状態
+          enum:
+            - NORMAL
+            - WARNING
+            - ALERT
+      required:
+        - uid
+        - tenantUid
+        - caregiverUid
+        - residentUid
+        - recordedAt
+        - notes
+        - dailyStatus
+    DailyRecordListResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DailyRecordDto"
+        total:
+          type: number
+          description: 総件数
+      required:
+        - items
+        - total
+    DailyRecordCreateInputDto:
+      type: object
+      properties:
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+          example: 2024-03-20T12:00:00Z
+        notes:
+          type: string
+          description: メモ
+        dailyStatus:
+          type: string
+          description: 日常の状態
+          enum:
+            - NORMAL
+            - WARNING
+            - ALERT
+          example: NORMAL
+      required:
+        - recordedAt
+    DailyRecordUpdateInputDto:
+      type: object
+      properties:
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+          example: 2024-03-20T12:00:00Z
+        notes:
+          type: string
+          description: メモ
+        dailyStatus:
+          type: string
+          description: 日常の状態
+          enum:
+            - NORMAL
+            - WARNING
+            - ALERT
+          example: NORMAL
+      required:
+        - recordedAt
+    BeverageRecordDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: UID
+        tenantUid:
+          type: string
+          description: テナントUID
+        caregiverUid:
+          type: string
+          description: 介護者UID
+        residentUid:
+          type: string
+          description: 利用者UID
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+        notes:
+          type: string
+          description: メモ
+        beverageType:
+          type: string
+          description: 飲み物の種類
+          enum:
+            - WATER
+            - TEA
+            - OTHER
+        volume:
+          type: number
+          description: 飲み物の量（ml）
+      required:
+        - uid
+        - tenantUid
+        - caregiverUid
+        - residentUid
+        - recordedAt
+        - notes
+        - beverageType
+        - volume
+    BeverageRecordListResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/BeverageRecordDto"
+        total:
+          type: number
+          description: 総件数
+      required:
+        - items
+        - total
+    BeverageRecordCreateInputDto:
+      type: object
+      properties:
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+          example: 2024-03-20T12:00:00Z
+        notes:
+          type: string
+          description: メモ
+        beverageType:
+          type: string
+          description: 飲み物の種類
+          enum:
+            - WATER
+            - TEA
+            - OTHER
+          example: WATER
+        volume:
+          type: number
+          description: 飲み物の量（ml）
+          minimum: 0
+          example: 200
+      required:
+        - recordedAt
+        - beverageType
+        - volume
+    BeverageRecordUpdateInputDto:
+      type: object
+      properties:
+        recordedAt:
+          format: date-time
+          type: string
+          description: 記録時刻
+          example: 2024-03-20T12:00:00Z
+        notes:
+          type: string
+          description: メモ
+        beverageType:
+          type: string
+          description: 飲み物の種類
+          enum:
+            - WATER
+            - TEA
+            - OTHER
+          example: WATER
+        volume:
+          type: number
+          description: 飲み物の量（ml）
+          minimum: 0
+          example: 200
+      required:
+        - recordedAt
+        - beverageType
+        - volume
