@@ -7,6 +7,7 @@ import { TenantsModule } from './tenants/tenants.module';
 import { ResidentsModule } from './residents/residents.module';
 import { FoodRecordsModule } from './food-records/food-records.module';
 import { BathRecordsModule } from './bath-records/bath-records.module';
+import { EliminationRecordsModule } from './elimination-records/elimination-records.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { BathRecordsModule } from './bath-records/bath-records.module';
     ResidentsModule,
     FoodRecordsModule,
     BathRecordsModule,
+    EliminationRecordsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
