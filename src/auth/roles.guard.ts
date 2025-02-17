@@ -10,7 +10,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { UserRole } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
+import { PrismaService } from '../prisma.service';
 import { Request } from 'express';
 
 // メタデータキー
@@ -21,7 +21,7 @@ export class RolesGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private jwtService: JwtService,
-    private usersService: UsersService,
+    private prismaService: PrismaService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -35,7 +35,9 @@ export class RolesGuard implements CanActivate {
     try {
       // 2. JWTの検証とユーザー情報の取得
       const payload = await this.jwtService.verifyAsync(token);
-      const user = await this.usersService.findOneByUid(payload.sub);
+      const user = await this.prismaService.user.findUnique({
+        where: { uid: payload.sub },
+      });
       if (!user) {
         throw new UnauthorizedException('ユーザーが見つかりません');
       }

@@ -1,29 +1,67 @@
 import { Injectable } from '@nestjs/common';
 import { User, UserRole } from '@prisma/client';
-import { UserCreateTenantAdmin } from './dtos/user-create-tenant-admin.input.dto';
+import { TenantUserCreateInputDto } from './dtos/tenant-user-create.input.dto';
 import { UserCreateGlobalAdmin } from './dtos/user-create-global-admin.input.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma.service';
+import {
+  UserListItemDto,
+  UserListResponseDto,
+} from './dtos/user-list.output.dto';
+import { plainToInstance } from 'class-transformer';
+import { UserDto } from './dtos/user.output.dto';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findOneByLoginId(loginId: string): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { loginId },
-    });
-    return user;
+  async findByTenant(
+    tenantUid: string | null,
+    currentUser: User,
+  ): Promise<UserListResponseDto> {
+    // GLOBAL_ADMINの場合、tenantUidがnullなら全テナントのユーザーを取得
+    const where =
+      currentUser.role === UserRole.GLOBAL_ADMIN && !tenantUid
+        ? {}
+        : { tenantUid: tenantUid ?? currentUser.tenantUid };
+
+    const [items, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return {
+      items: plainToInstance(UserListItemDto, items, {
+        excludeExtraneousValues: true,
+      }),
+      total,
+    };
   }
 
-  async findOneByUid(uid: string): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { uid },
-    });
-    return user;
-  }
+  // テナント内にユーザーを作成する
+  async createTenantUser(
+    input: TenantUserCreateInputDto,
+    currentUser: User,
+  ): Promise<UserDto> {
+    // TENANT_ADMINは自身のテナントにのみ作成可能
+    if (
+      currentUser.role === UserRole.TENANT_ADMIN &&
+      currentUser.tenantUid !== input.tenantUid
+    ) {
+      throw new Error('Cannot create user for other tenants');
+    }
 
-  async createTenantAdmin(input: UserCreateTenantAdmin): Promise<User> {
+    // ユーザー権限がTENANT_ADMINかCAREGIVERのみ指定できる
+    if (
+      input.role !== UserRole.TENANT_ADMIN &&
+      input.role !== UserRole.CAREGIVER
+    ) {
+      throw new Error('Invalid user role');
+    }
+
     const passwordDigest = await bcrypt.hash(input.password, 10);
 
     const user = await this.prisma.user.create({
@@ -34,7 +72,7 @@ export class UsersService {
         givenName: input.givenName,
         familyNameFurigana: input.familyNameFurigana,
         givenNameFurigana: input.givenNameFurigana,
-        role: UserRole.TENANT_ADMIN,
+        role: input.role,
         tenant: {
           connect: {
             uid: input.tenantUid,
@@ -43,10 +81,14 @@ export class UsersService {
       },
     });
 
-    return user;
+    return plainToInstance(UserDto, user, {
+      excludeExtraneousValues: true,
+    });
   }
 
-  async createOrUpdateGlobalAdmin(input: UserCreateGlobalAdmin): Promise<User> {
+  async createOrUpdateGlobalAdmin(
+    input: UserCreateGlobalAdmin,
+  ): Promise<UserDto> {
     const passwordDigest = await bcrypt.hash(input.password, 10);
 
     const user = await this.prisma.user.upsert({
@@ -69,6 +111,8 @@ export class UsersService {
       },
     });
 
-    return user;
+    return plainToInstance(UserDto, user, {
+      excludeExtraneousValues: true,
+    });
   }
 }
