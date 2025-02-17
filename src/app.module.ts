@@ -8,6 +8,7 @@ import { ResidentsModule } from './residents/residents.module';
 import { FoodRecordsModule } from './food-records/food-records.module';
 import { BathRecordsModule } from './bath-records/bath-records.module';
 import { EliminationRecordsModule } from './elimination-records/elimination-records.module';
+import { DailyRecordsModule } from './daily-records/daily-records.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { EliminationRecordsModule } from './elimination-records/elimination-reco
     FoodRecordsModule,
     BathRecordsModule,
     EliminationRecordsModule,
+    DailyRecordsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
