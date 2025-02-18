@@ -137,4 +137,29 @@ export class ResidentsService {
 
     await this.prisma.resident.delete({ where: { uid } });
   }
+
+  async findOne(uid: string, currentUser: User): Promise<ResidentDto> {
+    const resident = await this.prisma.resident.findUnique({
+      where: { uid },
+    });
+
+    if (!resident) {
+      throw new NotFoundException(`利用者が見つかりません（UID: ${uid}）`);
+    }
+
+    // TENANT_ADMINとCAREGIVERは自身のテナントの利用者のみ取得可能
+    if (
+      (currentUser.role === UserRole.TENANT_ADMIN ||
+        currentUser.role === UserRole.CAREGIVER) &&
+      resident.tenantUid !== currentUser.tenantUid
+    ) {
+      throw new UnauthorizedException(
+        '他のテナントの利用者情報を取得する権限がありません',
+      );
+    }
+
+    return plainToInstance(ResidentDto, resident, {
+      excludeExtraneousValues: true,
+    });
+  }
 }

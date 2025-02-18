@@ -311,6 +311,32 @@ paths:
         - JWT-auth: []
       summary: 利用者を削除
       tags: *a4
+    get:
+      operationId: ResidentsController_findOne
+      parameters:
+        - name: tenantUid
+          required: true
+          in: path
+          description: テナントUID
+          schema:
+            type: string
+        - name: uid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 利用者の詳細取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResidentDto"
+      security:
+        - JWT-auth: []
+      summary: 利用者の詳細を取得
+      tags: *a4
   /residents/{residentUid}/food-records:
     get:
       operationId: FoodRecordsController_findByResident

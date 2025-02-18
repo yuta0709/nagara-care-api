@@ -107,4 +107,23 @@ export class ResidentsController {
   ): Promise<void> {
     return this.residentsService.delete(uid, user);
   }
+
+  @Get('tenants/:tenantUid/residents/:uid')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: '利用者の詳細を取得' })
+  @ApiParam({ name: 'tenantUid', description: 'テナントUID' })
+  @ApiParam({ name: 'uid', description: '利用者UID' })
+  @ApiResponse({
+    status: 200,
+    description: '利用者の詳細取得に成功',
+    type: ResidentDto,
+  })
+  findOne(
+    @Param('tenantUid') tenantUid: string,
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<ResidentDto> {
+    return this.residentsService.findOne(uid, user);
+  }
 }
