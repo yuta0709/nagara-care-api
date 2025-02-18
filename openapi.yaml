@@ -875,6 +875,9 @@ components:
         role:
           type: string
           description: ユーザー権限
+        tenantUid:
+          type: string
+          description: テナントUID
       required:
         - uid
         - loginId
@@ -883,6 +886,7 @@ components:
         - familyNameFurigana
         - givenNameFurigana
         - role
+        - tenantUid
     UserListItemDto:
       type: object
       properties:

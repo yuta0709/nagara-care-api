@@ -30,4 +30,8 @@ export class UserDto {
   @Expose()
   @ApiProperty({ description: 'ユーザー権限' })
   role: UserRole;
+
+  @Expose()
+  @ApiProperty({ description: 'テナントUID' })
+  tenantUid: string;
 }
