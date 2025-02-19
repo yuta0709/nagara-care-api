@@ -33,7 +33,10 @@ export class TenantsController {
   @Get()
   @Authorize([UserRole.GLOBAL_ADMIN])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'テナント一覧を取得' })
+  @ApiOperation({
+    operationId: 'getTenants',
+    summary: 'テナント一覧を取得',
+  })
   @ApiResponse({
     status: 200,
     description: 'テナント一覧の取得に成功',
@@ -45,7 +48,10 @@ export class TenantsController {
 
   @Post()
   @Authorize([UserRole.GLOBAL_ADMIN])
-  @ApiOperation({ summary: 'テナントを作成する' })
+  @ApiOperation({
+    operationId: 'createTenant',
+    summary: 'テナントを作成する',
+  })
   @ApiResponse({
     status: 201,
     description: 'テナントが正常に作成されました',
@@ -58,7 +64,10 @@ export class TenantsController {
   @Patch(':uid')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'テナントを更新' })
+  @ApiOperation({
+    operationId: 'updateTenant',
+    summary: 'テナントを更新',
+  })
   @ApiParam({ name: 'uid', description: 'テナントUID' })
   @ApiResponse({
     status: 200,
@@ -76,7 +85,10 @@ export class TenantsController {
   @Delete(':uid')
   @Authorize([UserRole.GLOBAL_ADMIN])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'テナントを削除' })
+  @ApiOperation({
+    operationId: 'deleteTenant',
+    summary: 'テナントを削除',
+  })
   @ApiParam({ name: 'uid', description: 'テナントUID' })
   @ApiResponse({
     status: 200,

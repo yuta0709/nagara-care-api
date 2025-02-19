@@ -30,7 +30,10 @@ export class AuthController {
   // ログインIDとパスワードからJWTトークンを発行
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  @ApiOperation({ summary: 'ログイン' })
+  @ApiOperation({
+    operationId: 'login',
+    summary: 'ログイン',
+  })
   @ApiResponse({
     status: 200,
     description: 'ログイン成功',
@@ -44,7 +47,10 @@ export class AuthController {
   @Authorize()
   @Get('me')
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'ログイン中のユーザー情報を取得' })
+  @ApiOperation({
+    operationId: 'getMe',
+    summary: 'ログイン中のユーザー情報を取得',
+  })
   @ApiResponse({
     status: 200,
     description: 'ユーザー情報の取得に成功',

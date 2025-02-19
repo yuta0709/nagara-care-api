@@ -34,7 +34,10 @@ export class EliminationRecordsController {
   @Get()
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '利用者の排泄記録一覧を取得' })
+  @ApiOperation({
+    operationId: 'getEliminationRecords',
+    summary: '利用者の排泄記録一覧を取得',
+  })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiResponse({
     status: 200,
@@ -51,7 +54,10 @@ export class EliminationRecordsController {
   @Post()
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '排泄記録を作成' })
+  @ApiOperation({
+    operationId: 'createEliminationRecord',
+    summary: '排泄記録を作成',
+  })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiResponse({
     status: 201,
@@ -70,7 +76,10 @@ export class EliminationRecordsController {
   @Patch(':uid')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '排泄記録を更新' })
+  @ApiOperation({
+    operationId: 'updateEliminationRecord',
+    summary: '排泄記録を更新',
+  })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiParam({ name: 'uid', description: '排泄記録UID' })
   @ApiResponse({
@@ -89,7 +98,10 @@ export class EliminationRecordsController {
   @Delete(':uid')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '排泄記録を削除' })
+  @ApiOperation({
+    operationId: 'deleteEliminationRecord',
+    summary: '排泄記録を削除',
+  })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiParam({ name: 'uid', description: '排泄記録UID' })
   @ApiResponse({

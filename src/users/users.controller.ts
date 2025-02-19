@@ -32,7 +32,10 @@ export class UsersController {
   @Get('tenants/:tenantUid/users')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'テナント内のユーザー一覧を取得' })
+  @ApiOperation({
+    operationId: 'getUsers',
+    summary: 'テナント内のユーザー一覧を取得',
+  })
   @ApiParam({
     name: 'tenantUid',
     required: false,
@@ -54,14 +57,17 @@ export class UsersController {
   @Post('tenants/:tenantUid/users')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'テナントにユーザーを作成' })
+  @ApiOperation({
+    operationId: 'createUser',
+    summary: 'テナントにユーザーを作成',
+  })
   @ApiParam({ name: 'tenantUid', description: 'テナントUID' })
   @ApiResponse({
     status: 201,
     description: 'ユーザーの作成に成功',
     type: UserDto,
   })
-  async createUser(
+  createUser(
     @Param('tenantUid') tenantUid: string,
     @Body() input: TenantUserCreateInputDto,
     @UserDecorator() user: User,
@@ -73,7 +79,10 @@ export class UsersController {
   @Patch('users/:uid')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'ユーザーを更新' })
+  @ApiOperation({
+    operationId: 'updateUser',
+    summary: 'ユーザーを更新',
+  })
   @ApiParam({ name: 'uid', description: 'ユーザーUID' })
   @ApiResponse({
     status: 200,
@@ -91,7 +100,10 @@ export class UsersController {
   @Delete('users/:uid')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'ユーザーを削除' })
+  @ApiOperation({
+    operationId: 'deleteUser',
+    summary: 'ユーザーを削除',
+  })
   @ApiParam({ name: 'uid', description: 'ユーザーUID' })
   @ApiResponse({
     status: 200,

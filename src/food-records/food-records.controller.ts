@@ -32,7 +32,10 @@ export class FoodRecordsController {
   @Get()
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '利用者の食事記録一覧を取得' })
+  @ApiOperation({
+    operationId: 'getFoodRecords',
+    summary: '利用者の食事記録一覧を取得',
+  })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiResponse({
     status: 200,
@@ -49,7 +52,10 @@ export class FoodRecordsController {
   @Post()
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '食事記録を作成' })
+  @ApiOperation({
+    operationId: 'createFoodRecord',
+    summary: '食事記録を作成',
+  })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiResponse({
     status: 201,
@@ -68,7 +74,10 @@ export class FoodRecordsController {
   @Patch(':uid')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '食事記録を更新' })
+  @ApiOperation({
+    operationId: 'updateFoodRecord',
+    summary: '食事記録を更新',
+  })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiParam({ name: 'uid', description: '食事記録UID' })
   @ApiResponse({
@@ -87,7 +96,10 @@ export class FoodRecordsController {
   @Delete(':uid')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '食事記録を削除' })
+  @ApiOperation({
+    operationId: 'deleteFoodRecord',
+    summary: '食事記録を削除',
+  })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiParam({ name: 'uid', description: '食事記録UID' })
   @ApiResponse({

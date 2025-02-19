@@ -32,7 +32,10 @@ export class ResidentsController {
   @Get('tenants/:tenantUid/residents')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'テナント内の利用者一覧を取得' })
+  @ApiOperation({
+    operationId: 'getResidents',
+    summary: 'テナント内の利用者一覧を取得',
+  })
   @ApiParam({
     name: 'tenantUid',
     required: false,
@@ -54,14 +57,17 @@ export class ResidentsController {
   @Post('tenants/:tenantUid/residents')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'テナントに利用者を作成' })
+  @ApiOperation({
+    operationId: 'createResident',
+    summary: 'テナントに利用者を作成',
+  })
   @ApiParam({ name: 'tenantUid', description: 'テナントUID' })
   @ApiResponse({
     status: 201,
     description: '利用者の作成に成功',
     type: ResidentDto,
   })
-  async createResident(
+  createResident(
     @Param('tenantUid') tenantUid: string,
     @Body() input: ResidentCreateInputDto,
     @UserDecorator() user: User,
@@ -70,10 +76,35 @@ export class ResidentsController {
     return this.residentsService.create(input, user);
   }
 
+  @Get('tenants/:tenantUid/residents/:uid')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'getResident',
+    summary: '利用者の詳細を取得',
+  })
+  @ApiParam({ name: 'tenantUid', description: 'テナントUID' })
+  @ApiParam({ name: 'uid', description: '利用者UID' })
+  @ApiResponse({
+    status: 200,
+    description: '利用者の詳細取得に成功',
+    type: ResidentDto,
+  })
+  findOne(
+    @Param('tenantUid') tenantUid: string,
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<ResidentDto> {
+    return this.residentsService.findOne(uid, user);
+  }
+
   @Patch('tenants/:tenantUid/residents/:uid')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '利用者を更新' })
+  @ApiOperation({
+    operationId: 'updateResident',
+    summary: '利用者を更新',
+  })
   @ApiParam({ name: 'tenantUid', description: 'テナントUID' })
   @ApiParam({ name: 'uid', description: '利用者UID' })
   @ApiResponse({
@@ -93,7 +124,10 @@ export class ResidentsController {
   @Delete('tenants/:tenantUid/residents/:uid')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '利用者を削除' })
+  @ApiOperation({
+    operationId: 'deleteResident',
+    summary: '利用者を削除',
+  })
   @ApiParam({ name: 'tenantUid', description: 'テナントUID' })
   @ApiParam({ name: 'uid', description: '利用者UID' })
   @ApiResponse({
@@ -106,24 +140,5 @@ export class ResidentsController {
     @UserDecorator() user: User,
   ): Promise<void> {
     return this.residentsService.delete(uid, user);
-  }
-
-  @Get('tenants/:tenantUid/residents/:uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '利用者の詳細を取得' })
-  @ApiParam({ name: 'tenantUid', description: 'テナントUID' })
-  @ApiParam({ name: 'uid', description: '利用者UID' })
-  @ApiResponse({
-    status: 200,
-    description: '利用者の詳細取得に成功',
-    type: ResidentDto,
-  })
-  findOne(
-    @Param('tenantUid') tenantUid: string,
-    @Param('uid') uid: string,
-    @UserDecorator() user: User,
-  ): Promise<ResidentDto> {
-    return this.residentsService.findOne(uid, user);
   }
 }

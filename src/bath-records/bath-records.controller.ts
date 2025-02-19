@@ -32,7 +32,10 @@ export class BathRecordsController {
   @Get()
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '利用者の入浴記録一覧を取得' })
+  @ApiOperation({
+    operationId: 'getBathRecords',
+    summary: '利用者の入浴記録一覧を取得',
+  })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiResponse({
     status: 200,
@@ -49,7 +52,10 @@ export class BathRecordsController {
   @Post()
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '入浴記録を作成' })
+  @ApiOperation({
+    operationId: 'createBathRecord',
+    summary: '入浴記録を作成',
+  })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiResponse({
     status: 201,
@@ -68,7 +74,10 @@ export class BathRecordsController {
   @Patch(':uid')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '入浴記録を更新' })
+  @ApiOperation({
+    operationId: 'updateBathRecord',
+    summary: '入浴記録を更新',
+  })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiParam({ name: 'uid', description: '入浴記録UID' })
   @ApiResponse({
@@ -87,7 +96,10 @@ export class BathRecordsController {
   @Delete(':uid')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: '入浴記録を削除' })
+  @ApiOperation({
+    operationId: 'deleteBathRecord',
+    summary: '入浴記録を削除',
+  })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiParam({ name: 'uid', description: '入浴記録UID' })
   @ApiResponse({

@@ -11,7 +11,7 @@ paths:
         - App
   /auth/login:
     post:
-      operationId: AuthController_signIn
+      operationId: login
       parameters: []
       requestBody:
         required: true
@@ -31,7 +31,7 @@ paths:
         - auth
   /auth/me:
     get:
-      operationId: AuthController_getProfile
+      operationId: getMe
       parameters: []
       responses:
         "200":
@@ -46,7 +46,7 @@ paths:
       tags: *a1
   /tenants/{tenantUid}/users:
     get:
-      operationId: UsersController_findByTenant
+      operationId: getUsers
       parameters:
         - name: tenantUid
           required: false
@@ -67,7 +67,7 @@ paths:
       tags: &a2
         - users
     post:
-      operationId: UsersController_createUser
+      operationId: createUser
       parameters:
         - name: tenantUid
           required: true
@@ -94,7 +94,7 @@ paths:
       tags: *a2
   /users/{uid}:
     patch:
-      operationId: UsersController_updateUser
+      operationId: updateUser
       parameters:
         - name: uid
           required: true
@@ -120,7 +120,7 @@ paths:
       summary: ユーザーを更新
       tags: *a2
     delete:
-      operationId: UsersController_deleteUser
+      operationId: deleteUser
       parameters:
         - name: uid
           required: true
@@ -137,7 +137,7 @@ paths:
       tags: *a2
   /tenants:
     get:
-      operationId: TenantsController_findAll
+      operationId: getTenants
       parameters: []
       responses:
         "200":
@@ -152,7 +152,7 @@ paths:
       tags: &a3
         - tenants
     post:
-      operationId: TenantsController_create
+      operationId: createTenant
       parameters: []
       requestBody:
         required: true
@@ -167,7 +167,7 @@ paths:
       tags: *a3
   /tenants/{uid}:
     patch:
-      operationId: TenantsController_update
+      operationId: updateTenant
       parameters:
         - name: uid
           required: true
@@ -193,7 +193,7 @@ paths:
       summary: テナントを更新
       tags: *a3
     delete:
-      operationId: TenantsController_delete
+      operationId: deleteTenant
       parameters:
         - name: uid
           required: true
@@ -210,7 +210,7 @@ paths:
       tags: *a3
   /tenants/{tenantUid}/residents:
     get:
-      operationId: ResidentsController_findByTenant
+      operationId: getResidents
       parameters:
         - name: tenantUid
           required: false
@@ -231,7 +231,7 @@ paths:
       tags: &a4
         - residents
     post:
-      operationId: ResidentsController_createResident
+      operationId: createResident
       parameters:
         - name: tenantUid
           required: true
@@ -257,8 +257,34 @@ paths:
       summary: テナントに利用者を作成
       tags: *a4
   /tenants/{tenantUid}/residents/{uid}:
+    get:
+      operationId: getResident
+      parameters:
+        - name: tenantUid
+          required: true
+          in: path
+          description: テナントUID
+          schema:
+            type: string
+        - name: uid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 利用者の詳細取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResidentDto"
+      security:
+        - JWT-auth: []
+      summary: 利用者の詳細を取得
+      tags: *a4
     patch:
-      operationId: ResidentsController_updateResident
+      operationId: updateResident
       parameters:
         - name: tenantUid
           required: true
@@ -290,7 +316,7 @@ paths:
       summary: 利用者を更新
       tags: *a4
     delete:
-      operationId: ResidentsController_deleteResident
+      operationId: deleteResident
       parameters:
         - name: tenantUid
           required: true
@@ -311,35 +337,9 @@ paths:
         - JWT-auth: []
       summary: 利用者を削除
       tags: *a4
-    get:
-      operationId: ResidentsController_findOne
-      parameters:
-        - name: tenantUid
-          required: true
-          in: path
-          description: テナントUID
-          schema:
-            type: string
-        - name: uid
-          required: true
-          in: path
-          description: 利用者UID
-          schema:
-            type: string
-      responses:
-        "200":
-          description: 利用者の詳細取得に成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ResidentDto"
-      security:
-        - JWT-auth: []
-      summary: 利用者の詳細を取得
-      tags: *a4
   /residents/{residentUid}/food-records:
     get:
-      operationId: FoodRecordsController_findByResident
+      operationId: getFoodRecords
       parameters:
         - name: residentUid
           required: true
@@ -360,7 +360,7 @@ paths:
       tags: &a5
         - food-records
     post:
-      operationId: FoodRecordsController_create
+      operationId: createFoodRecord
       parameters:
         - name: residentUid
           required: true
@@ -387,7 +387,7 @@ paths:
       tags: *a5
   /residents/{residentUid}/food-records/{uid}:
     patch:
-      operationId: FoodRecordsController_update
+      operationId: updateFoodRecord
       parameters:
         - name: uid
           required: true
@@ -418,7 +418,7 @@ paths:
       summary: 食事記録を更新
       tags: *a5
     delete:
-      operationId: FoodRecordsController_delete
+      operationId: deleteFoodRecord
       parameters:
         - name: uid
           required: true
@@ -440,7 +440,7 @@ paths:
       tags: *a5
   /residents/{residentUid}/bath-records:
     get:
-      operationId: BathRecordsController_findByResident
+      operationId: getBathRecords
       parameters:
         - name: residentUid
           required: true
@@ -461,7 +461,7 @@ paths:
       tags: &a6
         - bath-records
     post:
-      operationId: BathRecordsController_create
+      operationId: createBathRecord
       parameters:
         - name: residentUid
           required: true
@@ -488,7 +488,7 @@ paths:
       tags: *a6
   /residents/{residentUid}/bath-records/{uid}:
     patch:
-      operationId: BathRecordsController_update
+      operationId: updateBathRecord
       parameters:
         - name: uid
           required: true
@@ -519,7 +519,7 @@ paths:
       summary: 入浴記録を更新
       tags: *a6
     delete:
-      operationId: BathRecordsController_delete
+      operationId: deleteBathRecord
       parameters:
         - name: uid
           required: true
@@ -541,7 +541,7 @@ paths:
       tags: *a6
   /residents/{residentUid}/elimination-records:
     get:
-      operationId: EliminationRecordsController_findByResident
+      operationId: getEliminationRecords
       parameters:
         - name: residentUid
           required: true
@@ -562,7 +562,7 @@ paths:
       tags: &a7
         - elimination-records
     post:
-      operationId: EliminationRecordsController_create
+      operationId: createEliminationRecord
       parameters:
         - name: residentUid
           required: true
@@ -589,7 +589,7 @@ paths:
       tags: *a7
   /residents/{residentUid}/elimination-records/{uid}:
     patch:
-      operationId: EliminationRecordsController_update
+      operationId: updateEliminationRecord
       parameters:
         - name: uid
           required: true
@@ -620,7 +620,7 @@ paths:
       summary: 排泄記録を更新
       tags: *a7
     delete:
-      operationId: EliminationRecordsController_delete
+      operationId: deleteEliminationRecord
       parameters:
         - name: uid
           required: true
@@ -642,7 +642,7 @@ paths:
       tags: *a7
   /residents/{residentUid}/daily-records:
     get:
-      operationId: DailyRecordsController_findByResident
+      operationId: getDailyRecords
       parameters:
         - name: residentUid
           required: true
@@ -663,7 +663,7 @@ paths:
       tags: &a8
         - daily-records
     post:
-      operationId: DailyRecordsController_create
+      operationId: createDailyRecord
       parameters:
         - name: residentUid
           required: true
@@ -690,7 +690,7 @@ paths:
       tags: *a8
   /residents/{residentUid}/daily-records/{uid}:
     patch:
-      operationId: DailyRecordsController_update
+      operationId: updateDailyRecord
       parameters:
         - name: uid
           required: true
@@ -721,7 +721,7 @@ paths:
       summary: 日常記録を更新
       tags: *a8
     delete:
-      operationId: DailyRecordsController_delete
+      operationId: deleteDailyRecord
       parameters:
         - name: uid
           required: true
@@ -743,7 +743,7 @@ paths:
       tags: *a8
   /residents/{residentUid}/beverage-records:
     get:
-      operationId: BeverageRecordsController_findByResident
+      operationId: getBeverageRecords
       parameters:
         - name: residentUid
           required: true
@@ -764,7 +764,7 @@ paths:
       tags: &a9
         - beverage-records
     post:
-      operationId: BeverageRecordsController_create
+      operationId: createBeverageRecord
       parameters:
         - name: residentUid
           required: true
@@ -791,7 +791,7 @@ paths:
       tags: *a9
   /residents/{residentUid}/beverage-records/{uid}:
     patch:
-      operationId: BeverageRecordsController_update
+      operationId: updateBeverageRecord
       parameters:
         - name: uid
           required: true
@@ -822,7 +822,7 @@ paths:
       summary: 飲料記録を更新
       tags: *a9
     delete:
-      operationId: BeverageRecordsController_delete
+      operationId: deleteBeverageRecord
       parameters:
         - name: uid
           required: true
