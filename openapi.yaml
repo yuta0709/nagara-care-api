@@ -163,6 +163,10 @@ paths:
       responses:
         "201":
           description: テナントが正常に作成されました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantCreateOutputDto"
       summary: テナントを作成する
       tags: *a3
   /tenants/{uid}:
@@ -1073,15 +1077,6 @@ components:
           example: 介護施設A
       required:
         - name
-    TenantUpdateInputDto:
-      type: object
-      properties:
-        name:
-          type: string
-          description: テナント名
-          example: 介護施設A
-      required:
-        - name
     TenantCreateOutputDto:
       type: object
       properties:
@@ -1099,6 +1094,15 @@ components:
         - uid
         - name
         - createdAt
+    TenantUpdateInputDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: テナント名
+          example: 介護施設A
+      required:
+        - name
     ResidentDto:
       type: object
       properties:

@@ -54,6 +54,7 @@ export class TenantsController {
   })
   @ApiResponse({
     status: 201,
+    type: TenantCreateOutputDto,
     description: 'テナントが正常に作成されました',
   })
   async create(@Body() createTenantDto: TenantCreateInputDto) {
