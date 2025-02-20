@@ -66,7 +66,7 @@ model User {
   givenNameFurigana  String
   role               UserRole
   tenantUid          String?
-  tenant             Tenant?  @relation(fields: [tenantUid], references: [uid])
+  tenant             Tenant?  @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
   createdAt          DateTime @default(now())
 
   foodRecords        FoodRecord[]
@@ -78,8 +78,8 @@ model User {
 
 model Resident {
   uid                String   @id @default(uuid())
-  tenantUid          String
-  tenant             Tenant   @relation(fields: [tenantUid], references: [uid])
+  tenantUid          String?
+  tenant             Tenant?   @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
   familyName         String
   givenName          String
   familyNameFurigana String
@@ -98,14 +98,14 @@ model Resident {
 
 model FoodRecord {
   uid       String @id @default(uuid())
-  tenantUid String
-  tenant    Tenant @relation(fields: [tenantUid], references: [uid])
+  tenantUid String?
+  tenant    Tenant? @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
 
-  caregiverUid String
-  caregiver    User   @relation(fields: [caregiverUid], references: [uid])
+  caregiverUid String?
+  caregiver    User?   @relation(fields: [caregiverUid], references: [uid], onDelete: SetNull)
 
-  residentUid String
-  resident    Resident @relation(fields: [residentUid], references: [uid])
+  residentUid String?
+  resident    Resident? @relation(fields: [residentUid], references: [uid], onDelete: SetNull)
 
   recordedAt           DateTime
   notes                String?
@@ -119,14 +119,14 @@ model FoodRecord {
 
 model BathRecord {
   uid       String @id @default(uuid())
-  tenantUid String
-  tenant    Tenant @relation(fields: [tenantUid], references: [uid])
+  tenantUid String?
+  tenant    Tenant? @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
 
-  caregiverUid String
-  caregiver    User   @relation(fields: [caregiverUid], references: [uid])
+  caregiverUid String?
+  caregiver    User?   @relation(fields: [caregiverUid], references: [uid], onDelete: SetNull)
 
-  residentUid String
-  resident    Resident @relation(fields: [residentUid], references: [uid])
+  residentUid String?
+  resident    Resident? @relation(fields: [residentUid], references: [uid], onDelete: SetNull)
 
   recordedAt DateTime
   notes      String?
@@ -135,14 +135,14 @@ model BathRecord {
 
 model BeverageRecord {
   uid       String @id @default(uuid())
-  tenantUid String
-  tenant    Tenant @relation(fields: [tenantUid], references: [uid])
+  tenantUid String?
+  tenant    Tenant? @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
 
-  caregiverUid String
-  caregiver    User   @relation(fields: [caregiverUid], references: [uid])
+  caregiverUid String?
+  caregiver    User?   @relation(fields: [caregiverUid], references: [uid], onDelete: SetNull)
 
-  residentUid String
-  resident    Resident @relation(fields: [residentUid], references: [uid])
+  residentUid String?
+  resident    Resident? @relation(fields: [residentUid], references: [uid], onDelete: SetNull)
 
   recordedAt   DateTime
   notes        String?
@@ -152,14 +152,14 @@ model BeverageRecord {
 
 model EliminationRecord {
   uid       String @id @default(uuid())
-  tenantUid String
-  tenant    Tenant @relation(fields: [tenantUid], references: [uid])
+  tenantUid String?
+  tenant    Tenant? @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
 
-  caregiverUid String
-  caregiver    User   @relation(fields: [caregiverUid], references: [uid])
+  caregiverUid String?
+  caregiver    User?   @relation(fields: [caregiverUid], references: [uid], onDelete: SetNull)
 
-  residentUid String
-  resident    Resident @relation(fields: [residentUid], references: [uid])
+  residentUid String?
+  resident    Resident? @relation(fields: [residentUid], references: [uid], onDelete: SetNull)
 
   recordedAt          DateTime
   notes               String?
@@ -176,14 +176,14 @@ model EliminationRecord {
 
 model DailyRecord {
   uid       String @id @default(uuid())
-  tenantUid String
-  tenant    Tenant @relation(fields: [tenantUid], references: [uid])
+  tenantUid String?
+  tenant    Tenant? @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
 
-  caregiverUid String
-  caregiver    User   @relation(fields: [caregiverUid], references: [uid])
+  caregiverUid String?
+  caregiver    User?   @relation(fields: [caregiverUid], references: [uid], onDelete: SetNull)
 
-  residentUid String
-  resident    Resident @relation(fields: [residentUid], references: [uid])
+  residentUid String?
+  resident    Resident? @relation(fields: [residentUid], references: [uid], onDelete: SetNull)
 
   recordedAt  DateTime
   notes       String?
