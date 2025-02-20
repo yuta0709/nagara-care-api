@@ -22,8 +22,8 @@ import {
 import { User as UserDecorator } from '../users/user.decorator';
 import { User } from '@prisma/client';
 import { plainToClass } from 'class-transformer';
-import { TenantCreateOutputDto } from './dtos/tenant-create.output.dto';
 import { TenantListResponseDto } from './dtos/tenant-list.output.dto';
+import { TenantDto } from './dtos/tenant.output.dto';
 
 @ApiTags('tenants')
 @Controller('tenants')
@@ -46,6 +46,26 @@ export class TenantsController {
     return this.tenantsService.findAll();
   }
 
+  @Get(':uid')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'getTenant',
+    summary: 'テナントの詳細を取得',
+  })
+  @ApiParam({ name: 'uid', description: 'テナントUID' })
+  @ApiResponse({
+    status: 200,
+    description: 'テナントの詳細取得に成功',
+    type: TenantDto,
+  })
+  findOne(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<TenantDto> {
+    return this.tenantsService.findOne(uid, user);
+  }
+
   @Post()
   @Authorize([UserRole.GLOBAL_ADMIN])
   @ApiOperation({
@@ -54,12 +74,14 @@ export class TenantsController {
   })
   @ApiResponse({
     status: 201,
-    type: TenantCreateOutputDto,
+    type: TenantDto,
     description: 'テナントが正常に作成されました',
   })
-  async create(@Body() createTenantDto: TenantCreateInputDto) {
+  async create(
+    @Body() createTenantDto: TenantCreateInputDto,
+  ): Promise<TenantDto> {
     const tenant = await this.tenantsService.create(createTenantDto);
-    return plainToClass(TenantCreateOutputDto, tenant);
+    return plainToClass(TenantDto, tenant);
   }
 
   @Patch(':uid')
@@ -73,13 +95,13 @@ export class TenantsController {
   @ApiResponse({
     status: 200,
     description: 'テナントの更新に成功',
-    type: TenantCreateOutputDto,
+    type: TenantDto,
   })
   update(
     @Param('uid') uid: string,
     @Body() input: TenantUpdateInputDto,
     @UserDecorator() user: User,
-  ) {
+  ): Promise<TenantDto> {
     return this.tenantsService.update(uid, input, user);
   }
 

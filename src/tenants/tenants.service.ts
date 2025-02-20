@@ -12,19 +12,21 @@ import {
 } from './dtos/tenant-list.output.dto';
 import { plainToInstance } from 'class-transformer';
 import { TenantUpdateInputDto } from './dtos/tenant-update.input.dto';
-import { TenantCreateOutputDto } from './dtos/tenant-create.output.dto';
+import { TenantDto } from './dtos/tenant.output.dto';
 
 @Injectable()
 export class TenantsService {
   constructor(private readonly prisma: PrismaService) {}
 
   // テナントを作成する
-  async create(data: TenantCreateInputDto): Promise<Tenant> {
-    return this.prisma.tenant.create({
+  async create(data: TenantCreateInputDto): Promise<TenantDto> {
+    const tenant = await this.prisma.tenant.create({
       data: {
         name: data.name,
       },
     });
+
+    return plainToInstance(TenantDto, tenant);
   }
 
   // テナント一覧を取得する
@@ -43,7 +45,11 @@ export class TenantsService {
   }
 
   // テナントを更新する
-  async update(uid: string, input: TenantUpdateInputDto, currentUser: User) {
+  async update(
+    uid: string,
+    input: TenantUpdateInputDto,
+    currentUser: User,
+  ): Promise<TenantDto> {
     // TENANT_ADMINは自身のテナントのみ更新可能
     if (
       currentUser.role === UserRole.TENANT_ADMIN &&
@@ -61,9 +67,7 @@ export class TenantsService {
       data: input,
     });
 
-    return plainToInstance(TenantCreateOutputDto, updatedTenant, {
-      excludeExtraneousValues: true,
-    });
+    return plainToInstance(TenantDto, updatedTenant);
   }
 
   // テナントを削除する
@@ -84,5 +88,25 @@ export class TenantsService {
     ]);
 
     return;
+  }
+
+  async findOne(uid: string, user: User): Promise<TenantDto> {
+    // GLOBAL_ADMINは全テナントにアクセス可能
+    // TENANT_ADMINは自分のテナントのみアクセス可能
+    if (user.role === UserRole.TENANT_ADMIN && user.tenantUid !== uid) {
+      throw new UnauthorizedException(
+        'このテナントへのアクセス権限がありません',
+      );
+    }
+
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { uid },
+    });
+
+    if (!tenant) {
+      throw new NotFoundException(`Tenant with uid ${uid} not found`);
+    }
+
+    return plainToInstance(TenantDto, tenant);
   }
 }
