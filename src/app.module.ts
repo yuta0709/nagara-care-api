@@ -12,6 +12,8 @@ import { BeverageRecordsModule } from './beverage-records/beverage-records.modul
 import { EliminationRecordsModule } from './elimination-records/elimination-records.module';
 import { DailyRecordsModule } from './daily-records/daily-records.module';
 import { SeedModule } from './seed/seed.module';
+import { AssessmentsModule } from './assessments/assessments.module';
+import { SubjectsModule } from './subjects/subjects.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { SeedModule } from './seed/seed.module';
     DailyRecordsModule,
     BeverageRecordsModule,
     SeedModule,
+    AssessmentsModule,
+    SubjectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

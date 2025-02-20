@@ -54,6 +54,8 @@ model Tenant {
   beverageRecords    BeverageRecord[]
   eliminationRecords EliminationRecord[]
   dailyRecords       DailyRecord[]
+  subjects           Subject[]
+  assessments        Assessment[]
 }
 
 model User {
@@ -74,12 +76,13 @@ model User {
   beverageRecords    BeverageRecord[]
   eliminationRecords EliminationRecord[]
   dailyRecords       DailyRecord[]
+  assessments        Assessment[]
 }
 
 model Resident {
   uid                String   @id @default(uuid())
   tenantUid          String?
-  tenant             Tenant?   @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
+  tenant             Tenant?  @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
   familyName         String
   givenName          String
   familyNameFurigana String
@@ -97,7 +100,7 @@ model Resident {
 }
 
 model FoodRecord {
-  uid       String @id @default(uuid())
+  uid       String  @id @default(uuid())
   tenantUid String?
   tenant    Tenant? @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
 
@@ -118,7 +121,7 @@ model FoodRecord {
 }
 
 model BathRecord {
-  uid       String @id @default(uuid())
+  uid       String  @id @default(uuid())
   tenantUid String?
   tenant    Tenant? @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
 
@@ -134,7 +137,7 @@ model BathRecord {
 }
 
 model BeverageRecord {
-  uid       String @id @default(uuid())
+  uid       String  @id @default(uuid())
   tenantUid String?
   tenant    Tenant? @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
 
@@ -151,7 +154,7 @@ model BeverageRecord {
 }
 
 model EliminationRecord {
-  uid       String @id @default(uuid())
+  uid       String  @id @default(uuid())
   tenantUid String?
   tenant    Tenant? @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
 
@@ -175,7 +178,7 @@ model EliminationRecord {
 }
 
 model DailyRecord {
-  uid       String @id @default(uuid())
+  uid       String  @id @default(uuid())
   tenantUid String?
   tenant    Tenant? @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
 
@@ -188,4 +191,112 @@ model DailyRecord {
   recordedAt  DateTime
   notes       String?
   dailyStatus DailyStatus?
+}
+
+// アセスメント関連
+
+enum CareLevel {
+  NEEDS_CARE_1
+  NEEDS_CARE_2
+  NEEDS_CARE_3
+  NEEDS_CARE_4
+  NEEDS_CARE_5
+}
+
+enum IndependenceLevel {
+  INDEPENDENT
+  J1
+  J2
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
+enum CognitiveIndependence {
+  INDEPENDENT
+  I
+  IIa
+  IIb
+  IIIa
+  IIIb
+  IV
+  M
+}
+
+model Subject {
+  uid                String       @id @default(uuid())
+  givenName          String
+  familyName         String
+  familyNameFurigana String
+  givenNameFurigana  String
+  dateOfBirth        DateTime
+  gender             Gender
+  assessments        Assessment[]
+  tenantUid          String?
+  tenant             Tenant?      @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
+
+model Assessment {
+  uid                    String                @id @default(uuid())
+  subjectUid             String                @unique
+  subject                Subject               @relation(fields: [subjectUid], references: [uid])
+  tenantUid              String?
+  tenant                 Tenant?               @relation(fields: [tenantUid], references: [uid], onDelete: SetNull)
+  userUid                String?
+  user                   User?                 @relation(fields: [userUid], references: [uid], onDelete: SetNull)
+  // 家族構成
+  familyInfo             String?
+  // 要介護状態区分
+  careLevel              CareLevel
+  // 障害高齢者の日常生活自立度判定基準
+  physicalIndependence   IndependenceLevel
+  // 認知症高齢者の日常生活自立度判定基準
+  cognitiveIndependence  CognitiveIndependence
+  // 既往症
+  medicalHistory         String?
+  // 服用薬剤
+  medications            String?
+  // 使用しているフォーマルサービス
+  formalServices         String?
+  // 使用しているインフォーマルサービス
+  informalSupport        String?
+  // 相談に至った経緯
+  consultationBackground String?
+  // 生活史
+  lifeHistory            String?
+  // 主訴
+  complaints             String?
+  // 健康状態
+  healthNotes            String?
+  // 精神状態
+  mentalStatus           String?
+  // 身体状態
+  physicalStatus         String?
+  // ADL
+  adlStatus              String?
+  // コミュニケーション
+  communication          String?
+  // 日常生活
+  dailyLife              String?
+  // IADL
+  instrumentalADL        String?
+  // 参加・参加制約
+  participation          String?
+  // 環境
+  environment            String?
+  // 生活状況
+  livingSituation        String?
+  // 制度的環境
+  legalSupport           String?
+  // 個人因子
+  personalTraits         String?
+  // 文字起こし
+  transcription          String?
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
 }

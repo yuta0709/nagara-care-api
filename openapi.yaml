@@ -866,6 +866,323 @@ paths:
         - JWT-auth: []
       summary: 飲料記録を削除
       tags: *a9
+  /assessments:
+    get:
+      operationId: getAssessments
+      parameters: []
+      responses:
+        "200":
+          description: アセスメント一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentListResponseDto"
+      security:
+        - JWT-auth: []
+      summary: アセスメント一覧を取得
+      tags: &a10
+        - assessments
+    post:
+      operationId: createAssessment
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssessmentCreateInputDto"
+      responses:
+        "201":
+          description: アセスメントの作成に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentDto"
+      security:
+        - JWT-auth: []
+      summary: アセスメントを作成
+      tags: *a10
+  /assessments/{uid}:
+    get:
+      operationId: getAssessment
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: アセスメントUID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: アセスメントの詳細取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentDto"
+      security:
+        - JWT-auth: []
+      summary: アセスメントの詳細を取得
+      tags: *a10
+    patch:
+      operationId: updateAssessment
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: アセスメントUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssessmentUpdateInputDto"
+      responses:
+        "200":
+          description: アセスメントの更新に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentDto"
+      security:
+        - JWT-auth: []
+      summary: アセスメントを更新
+      tags: *a10
+    delete:
+      operationId: deleteAssessment
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: アセスメントUID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: アセスメントの削除に成功
+      security:
+        - JWT-auth: []
+      summary: アセスメントを削除
+      tags: *a10
+  /assessments/{uid}/transcription:
+    get:
+      operationId: getTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: アセスメントUID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: アセスメントの文字起こし取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: アセスメントの文字起こしを取得
+      tags: *a10
+    patch:
+      operationId: appendTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: アセスメントUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: アセスメントの文字起こし追記に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: アセスメントの文字起こしを追記
+      tags: *a10
+    put:
+      operationId: updateTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: アセスメントUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: アセスメントの文字起こし置換に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: アセスメントの文字起こしを置換
+      tags: *a10
+    delete:
+      operationId: deleteTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: アセスメントUID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: アセスメントの文字起こし削除に成功
+      security:
+        - JWT-auth: []
+      summary: アセスメントの文字起こしを削除
+      tags: *a10
+  /tenants/{tenantUid}/subjects:
+    get:
+      operationId: getSubjects
+      parameters:
+        - name: tenantUid
+          required: false
+          in: path
+          description: テナントUID（GLOBAL_ADMINの場合、省略すると全テナントのアセスメント対象者を取得）
+          schema:
+            type: string
+      responses:
+        "200":
+          description: アセスメント対象者一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectListResponseDto"
+      security:
+        - JWT-auth: []
+      summary: テナント内のアセスメント対象者一覧を取得
+      tags: &a11
+        - subjects
+    post:
+      operationId: createSubject
+      parameters:
+        - name: tenantUid
+          required: true
+          in: path
+          description: テナントUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubjectCreateInputDto"
+      responses:
+        "201":
+          description: アセスメント対象者の作成に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectDto"
+      security:
+        - JWT-auth: []
+      summary: テナントにアセスメント対象者を作成
+      tags: *a11
+  /tenants/{tenantUid}/subjects/{uid}:
+    get:
+      operationId: getSubject
+      parameters:
+        - name: tenantUid
+          required: true
+          in: path
+          description: テナントUID
+          schema:
+            type: string
+        - name: uid
+          required: true
+          in: path
+          description: アセスメント対象者UID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: アセスメント対象者の詳細取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectDto"
+      security:
+        - JWT-auth: []
+      summary: アセスメント対象者の詳細を取得
+      tags: *a11
+    patch:
+      operationId: updateSubject
+      parameters:
+        - name: tenantUid
+          required: true
+          in: path
+          description: テナントUID
+          schema:
+            type: string
+        - name: uid
+          required: true
+          in: path
+          description: アセスメント対象者UID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubjectUpdateInputDto"
+      responses:
+        "200":
+          description: アセスメント対象者の更新に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectDto"
+      security:
+        - JWT-auth: []
+      summary: アセスメント対象者を更新
+      tags: *a11
+    delete:
+      operationId: deleteSubject
+      parameters:
+        - name: tenantUid
+          required: true
+          in: path
+          description: テナントUID
+          schema:
+            type: string
+        - name: uid
+          required: true
+          in: path
+          description: アセスメント対象者UID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: アセスメント対象者の削除に成功
+      security:
+        - JWT-auth: []
+      summary: アセスメント対象者を削除
+      tags: *a11
 info:
   title: Nagara Care API
   description: ""
@@ -1930,3 +2247,418 @@ components:
         - recordedAt
         - beverageType
         - volume
+    SubjectDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: UID
+        familyName:
+          type: string
+          description: 姓
+        givenName:
+          type: string
+          description: 名
+        familyNameFurigana:
+          type: string
+          description: 姓（フリガナ）
+        givenNameFurigana:
+          type: string
+          description: 名（フリガナ）
+        dateOfBirth:
+          format: date-time
+          type: string
+          description: 生年月日
+        gender:
+          type: string
+          description: 性別
+          enum:
+            - MALE
+            - FEMALE
+        tenantUid:
+          type: string
+          description: テナントUID
+        createdAt:
+          format: date-time
+          type: string
+          description: 作成日時
+      required:
+        - uid
+        - familyName
+        - givenName
+        - familyNameFurigana
+        - givenNameFurigana
+        - dateOfBirth
+        - gender
+        - tenantUid
+        - createdAt
+    AssessmentDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: UID
+        subjectUid:
+          type: string
+          description: アセスメント対象者UID
+        subject:
+          description: アセスメント対象者
+          allOf:
+            - $ref: "#/components/schemas/SubjectDto"
+        tenantUid:
+          type: string
+          description: テナントUID
+        userUid:
+          type: string
+          description: 記入者UID
+        familyInfo:
+          type: string
+          description: 家族構成
+        careLevel:
+          type: string
+          description: 要介護状態区分
+          enum:
+            - NEEDS_CARE_1
+            - NEEDS_CARE_2
+            - NEEDS_CARE_3
+            - NEEDS_CARE_4
+            - NEEDS_CARE_5
+        physicalIndependence:
+          type: string
+          description: 障害高齢者の日常生活自立度判定基準
+          enum:
+            - INDEPENDENT
+            - J1
+            - J2
+            - A1
+            - A2
+            - B1
+            - B2
+            - C1
+            - C2
+        cognitiveIndependence:
+          type: string
+          description: 認知症高齢者の日常生活自立度判定基準
+          enum:
+            - INDEPENDENT
+            - I
+            - IIa
+            - IIb
+            - IIIa
+            - IIIb
+            - IV
+            - M
+        medicalHistory:
+          type: string
+          description: 既往症
+        medications:
+          type: string
+          description: 服用薬剤
+        formalServices:
+          type: string
+          description: 使用しているフォーマルサービス
+        informalSupport:
+          type: string
+          description: 使用しているインフォーマルサービス
+        consultationBackground:
+          type: string
+          description: 相談に至った経緯
+        lifeHistory:
+          type: string
+          description: 生活史
+        complaints:
+          type: string
+          description: 主訴
+        healthNotes:
+          type: string
+          description: 健康状態
+        mentalStatus:
+          type: string
+          description: 精神状態
+        physicalStatus:
+          type: string
+          description: 身体状態
+        adlStatus:
+          type: string
+          description: ADL
+        communication:
+          type: string
+          description: コミュニケーション
+        dailyLife:
+          type: string
+          description: 日常生活
+        instrumentalADL:
+          type: string
+          description: IADL
+        participation:
+          type: string
+          description: 参加・参加制約
+        environment:
+          type: string
+          description: 環境
+        livingSituation:
+          type: string
+          description: 生活状況
+        legalSupport:
+          type: string
+          description: 制度的環境
+        personalTraits:
+          type: string
+          description: 個人因子
+        createdAt:
+          format: date-time
+          type: string
+          description: 作成日時
+      required:
+        - uid
+        - subjectUid
+        - subject
+        - tenantUid
+        - userUid
+        - familyInfo
+        - careLevel
+        - physicalIndependence
+        - cognitiveIndependence
+        - medicalHistory
+        - medications
+        - formalServices
+        - informalSupport
+        - consultationBackground
+        - lifeHistory
+        - complaints
+        - healthNotes
+        - mentalStatus
+        - physicalStatus
+        - adlStatus
+        - communication
+        - dailyLife
+        - instrumentalADL
+        - participation
+        - environment
+        - livingSituation
+        - legalSupport
+        - personalTraits
+        - createdAt
+    AssessmentListResponseDto:
+      type: object
+      properties:
+        items:
+          description: アセスメント一覧
+          type: array
+          items:
+            $ref: "#/components/schemas/AssessmentDto"
+        total:
+          type: number
+          description: 総件数
+      required:
+        - items
+        - total
+    AssessmentCreateInputDto:
+      type: object
+      properties:
+        subjectUid:
+          type: string
+          description: アセスメント対象者UID
+      required:
+        - subjectUid
+    AssessmentUpdateInputDto:
+      type: object
+      properties:
+        familyInfo:
+          type: string
+          description: 家族構成
+        careLevel:
+          type: string
+          description: 要介護状態区分
+          enum:
+            - NEEDS_CARE_1
+            - NEEDS_CARE_2
+            - NEEDS_CARE_3
+            - NEEDS_CARE_4
+            - NEEDS_CARE_5
+        physicalIndependence:
+          type: string
+          description: 障害高齢者の日常生活自立度判定基準
+          enum:
+            - INDEPENDENT
+            - J1
+            - J2
+            - A1
+            - A2
+            - B1
+            - B2
+            - C1
+            - C2
+        cognitiveIndependence:
+          type: string
+          description: 認知症高齢者の日常生活自立度判定基準
+          enum:
+            - INDEPENDENT
+            - I
+            - IIa
+            - IIb
+            - IIIa
+            - IIIb
+            - IV
+            - M
+        medicalHistory:
+          type: string
+          description: 既往症
+        medications:
+          type: string
+          description: 服用薬剤
+        formalServices:
+          type: string
+          description: 使用しているフォーマルサービス
+        informalSupport:
+          type: string
+          description: 使用しているインフォーマルサービス
+        consultationBackground:
+          type: string
+          description: 相談に至った経緯
+        lifeHistory:
+          type: string
+          description: 生活史
+        complaints:
+          type: string
+          description: 主訴
+        healthNotes:
+          type: string
+          description: 健康状態
+        mentalStatus:
+          type: string
+          description: 精神状態
+        physicalStatus:
+          type: string
+          description: 身体状態
+        adlStatus:
+          type: string
+          description: ADL
+        communication:
+          type: string
+          description: コミュニケーション
+        dailyLife:
+          type: string
+          description: 日常生活
+        instrumentalADL:
+          type: string
+          description: IADL
+        participation:
+          type: string
+          description: 参加・参加制約
+        environment:
+          type: string
+          description: 環境
+        livingSituation:
+          type: string
+          description: 生活状況
+        legalSupport:
+          type: string
+          description: 制度的環境
+        personalTraits:
+          type: string
+          description: 個人因子
+    TranscriptionDto:
+      type: object
+      properties:
+        transcription:
+          type: string
+          description: 文字起こしテキスト
+      required:
+        - transcription
+    TranscriptionInputDto:
+      type: object
+      properties:
+        transcription:
+          type: string
+          description: 文字起こしテキスト
+      required:
+        - transcription
+    SubjectListResponseDto:
+      type: object
+      properties:
+        items:
+          description: アセスメント対象者一覧
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectDto"
+        total:
+          type: number
+          description: 総件数
+      required:
+        - items
+        - total
+    SubjectCreateInputDto:
+      type: object
+      properties:
+        familyName:
+          type: string
+          description: 姓
+          example: 山田
+        givenName:
+          type: string
+          description: 名
+          example: 太郎
+        familyNameFurigana:
+          type: string
+          description: 姓（フリガナ）
+          example: ヤマダ
+        givenNameFurigana:
+          type: string
+          description: 名（フリガナ）
+          example: タロウ
+        dateOfBirth:
+          type: string
+          description: 生年月日
+          example: 1950-01-01
+        gender:
+          type: string
+          description: 性別
+          enum:
+            - MALE
+            - FEMALE
+          example: MALE
+      required:
+        - familyName
+        - givenName
+        - familyNameFurigana
+        - givenNameFurigana
+        - dateOfBirth
+        - gender
+    SubjectUpdateInputDto:
+      type: object
+      properties:
+        familyName:
+          type: string
+          description: 姓
+          example: 山田
+        givenName:
+          type: string
+          description: 名
+          example: 太郎
+        familyNameFurigana:
+          type: string
+          description: 姓（フリガナ）
+          example: ヤマダ
+        givenNameFurigana:
+          type: string
+          description: 名（フリガナ）
+          example: タロウ
+        dateOfBirth:
+          type: string
+          description: 生年月日
+          example: 1950-01-01
+        gender:
+          type: string
+          description: 性別
+          enum:
+            - MALE
+            - FEMALE
+          example: MALE
+      required:
+        - familyName
+        - givenName
+        - familyNameFurigana
+        - givenNameFurigana
+        - dateOfBirth
+        - gender
