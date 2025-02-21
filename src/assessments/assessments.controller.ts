@@ -26,6 +26,7 @@ import { User } from '@prisma/client';
 import { AssessmentDto } from './dtos/assessment.output.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { AssessmentListResponseDto } from './dtos/assessment-list.output.dto';
+import { summarize } from './llm/summarize';
 
 @ApiTags('assessments')
 @Controller()
@@ -207,5 +208,25 @@ export class AssessmentsController {
     @UserDecorator() user: User,
   ): Promise<void> {
     return this.assessmentsService.deleteTranscription(uid, user);
+  }
+
+  @Post('assessments/:uid/summarize')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'summarizeAssessment',
+    summary: 'アセスメントの要約を作成',
+  })
+  @ApiParam({ name: 'uid', description: 'アセスメントUID' })
+  @ApiResponse({
+    status: 200,
+    description: 'アセスメントの要約作成に成功',
+    type: String,
+  })
+  summarize(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<string> {
+    return this.assessmentsService.summarize(uid, user);
   }
 }

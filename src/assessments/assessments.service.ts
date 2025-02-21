@@ -19,6 +19,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { AssessmentDto } from './dtos/assessment.output.dto';
 import { AssessmentListResponseDto } from './dtos/assessment-list.output.dto';
+import { summarize } from './llm/summarize';
 
 @Injectable()
 export class AssessmentsService {
@@ -351,5 +352,29 @@ export class AssessmentsService {
       }),
       total,
     };
+  }
+
+  async summarize(uid: string, currentUser: User): Promise<string> {
+    const assessment = await this.prisma.assessment.findUnique({
+      where: { uid },
+    });
+
+    if (!assessment) {
+      throw new NotFoundException(
+        `アセスメントが見つかりません（UID: ${uid}）`,
+      );
+    }
+
+    // TENANT_ADMINは自身のテナントのアセスメントのみ要約可能
+    if (
+      currentUser.role === UserRole.TENANT_ADMIN &&
+      assessment.tenantUid !== currentUser.tenantUid
+    ) {
+      throw new UnauthorizedException(
+        '他のテナントのアセスメントを要約する権限がありません',
+      );
+    }
+
+    return (await summarize(assessment.transcription)).toString();
   }
 }

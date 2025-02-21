@@ -1054,6 +1054,27 @@ paths:
         - JWT-auth: []
       summary: アセスメントの文字起こしを削除
       tags: *a10
+  /assessments/{uid}/summarize:
+    post:
+      operationId: summarizeAssessment
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: アセスメントUID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: アセスメントの要約作成に成功
+          content:
+            application/json:
+              schema:
+                type: string
+      security:
+        - JWT-auth: []
+      summary: アセスメントの要約を作成
+      tags: *a10
   /tenants/{tenantUid}/subjects:
     get:
       operationId: getSubjects
