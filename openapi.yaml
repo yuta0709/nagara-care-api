@@ -495,6 +495,141 @@ paths:
         - JWT-auth: []
       summary: 食事記録を削除
       tags: *a5
+  /residents/{residentUid}/food-records/{uid}/transcription:
+    get:
+      operationId: getFoodRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 食事記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 食事記録の文字起こし取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 食事記録の文字起こしを取得
+      tags: *a5
+    patch:
+      operationId: appendFoodRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 食事記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: 食事記録の文字起こし追記に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 食事記録の文字起こしを追記
+      tags: *a5
+    put:
+      operationId: updateFoodRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 食事記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: 食事記録の文字起こし置換に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 食事記録の文字起こしを置換
+      tags: *a5
+    delete:
+      operationId: deleteFoodRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 食事記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 食事記録の文字起こし削除に成功
+      security:
+        - JWT-auth: []
+      summary: 食事記録の文字起こしを削除
+      tags: *a5
+  /residents/{residentUid}/food-records/{uid}/extract:
+    post:
+      operationId: extractFoodRecord
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 食事記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 食事記録からの情報抽出に成功
+          content:
+            application/json:
+              schema:
+                type: string
+      security:
+        - JWT-auth: []
+      summary: 食事記録から情報を抽出
+      tags: *a5
   /residents/{residentUid}/bath-records:
     get:
       operationId: getBathRecords
@@ -596,6 +731,141 @@ paths:
         - JWT-auth: []
       summary: 入浴記録を削除
       tags: *a6
+  /residents/{residentUid}/bath-records/{uid}/transcription:
+    get:
+      operationId: getBathRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 入浴記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 入浴記録の文字起こし取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 入浴記録の文字起こしを取得
+      tags: *a6
+    patch:
+      operationId: appendBathRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 入浴記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: 入浴記録の文字起こし追記に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 入浴記録の文字起こしを追記
+      tags: *a6
+    put:
+      operationId: updateBathRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 入浴記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: 入浴記録の文字起こし置換に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 入浴記録の文字起こしを置換
+      tags: *a6
+    delete:
+      operationId: deleteBathRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 入浴記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 入浴記録の文字起こし削除に成功
+      security:
+        - JWT-auth: []
+      summary: 入浴記録の文字起こしを削除
+      tags: *a6
+  /residents/{residentUid}/bath-records/{uid}/extract:
+    post:
+      operationId: extractBathRecord
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 入浴記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 入浴記録からの情報抽出に成功
+          content:
+            application/json:
+              schema:
+                type: string
+      security:
+        - JWT-auth: []
+      summary: 入浴記録から情報を抽出
+      tags: *a6
   /residents/{residentUid}/elimination-records:
     get:
       operationId: getEliminationRecords
@@ -696,6 +966,141 @@ paths:
       security:
         - JWT-auth: []
       summary: 排泄記録を削除
+      tags: *a7
+  /residents/{residentUid}/elimination-records/{uid}/transcription:
+    get:
+      operationId: getEliminationRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 排泄記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 排泄記録の文字起こし取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 排泄記録の文字起こしを取得
+      tags: *a7
+    patch:
+      operationId: appendEliminationRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 排泄記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: 排泄記録の文字起こし追記に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 排泄記録の文字起こしを追記
+      tags: *a7
+    put:
+      operationId: updateEliminationRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 排泄記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: 排泄記録の文字起こし置換に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 排泄記録の文字起こしを置換
+      tags: *a7
+    delete:
+      operationId: deleteEliminationRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 排泄記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 排泄記録の文字起こし削除に成功
+      security:
+        - JWT-auth: []
+      summary: 排泄記録の文字起こしを削除
+      tags: *a7
+  /residents/{residentUid}/elimination-records/{uid}/extract:
+    post:
+      operationId: extractEliminationRecord
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 排泄記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 排泄記録からの情報抽出に成功
+          content:
+            application/json:
+              schema:
+                type: string
+      security:
+        - JWT-auth: []
+      summary: 排泄記録から情報を抽出
       tags: *a7
   /residents/{residentUid}/daily-records:
     get:
@@ -898,6 +1303,141 @@ paths:
       security:
         - JWT-auth: []
       summary: 飲料記録を削除
+      tags: *a9
+  /residents/{residentUid}/beverage-records/{uid}/transcription:
+    get:
+      operationId: getBeverageRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 飲料記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 飲料記録の文字起こし取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 飲料記録の文字起こしを取得
+      tags: *a9
+    patch:
+      operationId: appendBeverageRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 飲料記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: 飲料記録の文字起こし追記に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 飲料記録の文字起こしを追記
+      tags: *a9
+    put:
+      operationId: updateBeverageRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 飲料記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: 飲料記録の文字起こし置換に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 飲料記録の文字起こしを置換
+      tags: *a9
+    delete:
+      operationId: deleteBeverageRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 飲料記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 飲料記録の文字起こし削除に成功
+      security:
+        - JWT-auth: []
+      summary: 飲料記録の文字起こしを削除
+      tags: *a9
+  /residents/{residentUid}/beverage-records/{uid}/extract:
+    post:
+      operationId: extractBeverageRecord
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 飲料記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 飲料記録からの情報抽出に成功
+          content:
+            application/json:
+              schema:
+                type: string
+      security:
+        - JWT-auth: []
+      summary: 飲料記録から情報を抽出
       tags: *a9
   /assessments:
     get:
@@ -1867,6 +2407,22 @@ components:
         - soupPercentage
         - beverageType
         - beverageVolume
+    TranscriptionDto:
+      type: object
+      properties:
+        transcription:
+          type: string
+          description: 文字起こしテキスト
+      required:
+        - transcription
+    TranscriptionInputDto:
+      type: object
+      properties:
+        transcription:
+          type: string
+          description: 文字起こしテキスト
+      required:
+        - transcription
     BathRecordDto:
       type: object
       properties:
@@ -2648,22 +3204,6 @@ components:
         personalTraits:
           type: string
           description: 個人因子
-    TranscriptionDto:
-      type: object
-      properties:
-        transcription:
-          type: string
-          description: 文字起こしテキスト
-      required:
-        - transcription
-    TranscriptionInputDto:
-      type: object
-      properties:
-        transcription:
-          type: string
-          description: 文字起こしテキスト
-      required:
-        - transcription
     SubjectListResponseDto:
       type: object
       properties:

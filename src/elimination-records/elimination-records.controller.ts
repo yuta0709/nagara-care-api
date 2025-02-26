@@ -6,12 +6,16 @@ import {
   Param,
   Patch,
   Post,
+  Put,
+  Query,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { EliminationRecordsService } from './elimination-records.service';
 import { EliminationRecordCreateInputDto } from './dtos/elimination-record-create.input.dto';
 import { EliminationRecordUpdateInputDto } from './dtos/elimination-record-update.input.dto';
 import { Authorize } from '../auth/roles.guard';
-import { UserRole } from '@prisma/client';
+import { UserRole, User } from '@prisma/client';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -20,9 +24,10 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { User as UserDecorator } from '../users/user.decorator';
-import { User } from '@prisma/client';
 import { EliminationRecordListResponseDto } from './dtos/elimination-record-list.output.dto';
 import { EliminationRecordDto } from './dtos/elimination-record.output.dto';
+import { TranscriptionInputDto } from './dtos/transcription.input.dto';
+import { TranscriptionDto } from './dtos/transcription.output.dto';
 
 @ApiTags('elimination-records')
 @Controller('residents/:residentUid/elimination-records')
@@ -113,5 +118,111 @@ export class EliminationRecordsController {
     @UserDecorator() user: User,
   ): Promise<void> {
     return this.eliminationRecordsService.delete(uid, user);
+  }
+
+  @Get(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'getEliminationRecordTranscription',
+    summary: '排泄記録の文字起こしを取得',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '排泄記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '排泄記録の文字起こし取得に成功',
+    type: TranscriptionDto,
+  })
+  getTranscription(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<TranscriptionDto> {
+    return this.eliminationRecordsService.getTranscription(uid, user);
+  }
+
+  @Patch(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'appendEliminationRecordTranscription',
+    summary: '排泄記録の文字起こしを追記',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '排泄記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '排泄記録の文字起こし追記に成功',
+    type: TranscriptionDto,
+  })
+  appendTranscription(
+    @Param('uid') uid: string,
+    @Body() input: TranscriptionInputDto,
+    @UserDecorator() user: User,
+  ): Promise<TranscriptionDto> {
+    return this.eliminationRecordsService.appendTranscription(uid, input, user);
+  }
+
+  @Put(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'updateEliminationRecordTranscription',
+    summary: '排泄記録の文字起こしを置換',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '排泄記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '排泄記録の文字起こし置換に成功',
+    type: TranscriptionDto,
+  })
+  updateTranscription(
+    @Param('uid') uid: string,
+    @Body() input: TranscriptionInputDto,
+    @UserDecorator() user: User,
+  ): Promise<TranscriptionDto> {
+    return this.eliminationRecordsService.updateTranscription(uid, input, user);
+  }
+
+  @Delete(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'deleteEliminationRecordTranscription',
+    summary: '排泄記録の文字起こしを削除',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '排泄記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '排泄記録の文字起こし削除に成功',
+  })
+  deleteTranscription(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<void> {
+    return this.eliminationRecordsService.deleteTranscription(uid, user);
+  }
+
+  @Post(':uid/extract')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'extractEliminationRecord',
+    summary: '排泄記録から情報を抽出',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '排泄記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '排泄記録からの情報抽出に成功',
+    type: String,
+  })
+  extract(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<string> {
+    return this.eliminationRecordsService.extract(uid, user);
   }
 }

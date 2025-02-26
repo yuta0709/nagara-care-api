@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
 } from '@nestjs/common';
 import { BeverageRecordsService } from './beverage-records.service';
 import { BeverageRecordCreateInputDto } from './dtos/beverage-record-create.input.dto';
@@ -23,6 +24,8 @@ import { User as UserDecorator } from '../users/user.decorator';
 import { User } from '@prisma/client';
 import { BeverageRecordListResponseDto } from './dtos/beverage-record-list.output.dto';
 import { BeverageRecordDto } from './dtos/beverage-record.output.dto';
+import { TranscriptionInputDto } from './dtos/transcription.input.dto';
+import { TranscriptionDto } from './dtos/transcription.output.dto';
 
 @ApiTags('beverage-records')
 @Controller('residents/:residentUid/beverage-records')
@@ -113,5 +116,111 @@ export class BeverageRecordsController {
     @UserDecorator() user: User,
   ): Promise<void> {
     return this.beverageRecordsService.delete(uid, user);
+  }
+
+  @Get(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'getBeverageRecordTranscription',
+    summary: '飲料記録の文字起こしを取得',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '飲料記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '飲料記録の文字起こし取得に成功',
+    type: TranscriptionDto,
+  })
+  getTranscription(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<TranscriptionDto> {
+    return this.beverageRecordsService.getTranscription(uid, user);
+  }
+
+  @Patch(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'appendBeverageRecordTranscription',
+    summary: '飲料記録の文字起こしを追記',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '飲料記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '飲料記録の文字起こし追記に成功',
+    type: TranscriptionDto,
+  })
+  appendTranscription(
+    @Param('uid') uid: string,
+    @Body() input: TranscriptionInputDto,
+    @UserDecorator() user: User,
+  ): Promise<TranscriptionDto> {
+    return this.beverageRecordsService.appendTranscription(uid, input, user);
+  }
+
+  @Put(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'updateBeverageRecordTranscription',
+    summary: '飲料記録の文字起こしを置換',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '飲料記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '飲料記録の文字起こし置換に成功',
+    type: TranscriptionDto,
+  })
+  updateTranscription(
+    @Param('uid') uid: string,
+    @Body() input: TranscriptionInputDto,
+    @UserDecorator() user: User,
+  ): Promise<TranscriptionDto> {
+    return this.beverageRecordsService.updateTranscription(uid, input, user);
+  }
+
+  @Delete(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'deleteBeverageRecordTranscription',
+    summary: '飲料記録の文字起こしを削除',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '飲料記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '飲料記録の文字起こし削除に成功',
+  })
+  deleteTranscription(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<void> {
+    return this.beverageRecordsService.deleteTranscription(uid, user);
+  }
+
+  @Post(':uid/extract')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'extractBeverageRecord',
+    summary: '飲料記録から情報を抽出',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '飲料記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '飲料記録からの情報抽出に成功',
+    type: String,
+  })
+  extract(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<string> {
+    return this.beverageRecordsService.extract(uid, user);
   }
 }

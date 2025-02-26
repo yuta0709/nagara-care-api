@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { FoodRecordsService } from './food-records.service';
@@ -26,6 +27,8 @@ import { User } from '@prisma/client';
 import { FoodRecordListResponseDto } from './dtos/food-record-list.output.dto';
 import { FoodRecordDto } from './dtos/food-record.output.dto';
 import { DailyFoodRecordsListResponseDto } from './dtos/food-record-daily.output.dto';
+import { TranscriptionInputDto } from './dtos/transcription.input.dto';
+import { TranscriptionDto } from './dtos/transcription.output.dto';
 
 @ApiTags('food-records')
 @Controller('residents/:residentUid/food-records')
@@ -151,5 +154,111 @@ export class FoodRecordsController {
     @UserDecorator() user: User,
   ): Promise<void> {
     return this.foodRecordsService.delete(uid, user);
+  }
+
+  @Get(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'getFoodRecordTranscription',
+    summary: '食事記録の文字起こしを取得',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '食事記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '食事記録の文字起こし取得に成功',
+    type: TranscriptionDto,
+  })
+  getTranscription(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<TranscriptionDto> {
+    return this.foodRecordsService.getTranscription(uid, user);
+  }
+
+  @Patch(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'appendFoodRecordTranscription',
+    summary: '食事記録の文字起こしを追記',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '食事記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '食事記録の文字起こし追記に成功',
+    type: TranscriptionDto,
+  })
+  appendTranscription(
+    @Param('uid') uid: string,
+    @Body() input: TranscriptionInputDto,
+    @UserDecorator() user: User,
+  ): Promise<TranscriptionDto> {
+    return this.foodRecordsService.appendTranscription(uid, input, user);
+  }
+
+  @Put(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'updateFoodRecordTranscription',
+    summary: '食事記録の文字起こしを置換',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '食事記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '食事記録の文字起こし置換に成功',
+    type: TranscriptionDto,
+  })
+  updateTranscription(
+    @Param('uid') uid: string,
+    @Body() input: TranscriptionInputDto,
+    @UserDecorator() user: User,
+  ): Promise<TranscriptionDto> {
+    return this.foodRecordsService.updateTranscription(uid, input, user);
+  }
+
+  @Delete(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'deleteFoodRecordTranscription',
+    summary: '食事記録の文字起こしを削除',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '食事記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '食事記録の文字起こし削除に成功',
+  })
+  deleteTranscription(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<void> {
+    return this.foodRecordsService.deleteTranscription(uid, user);
+  }
+
+  @Post(':uid/extract')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'extractFoodRecord',
+    summary: '食事記録から情報を抽出',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '食事記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '食事記録からの情報抽出に成功',
+    type: String,
+  })
+  extract(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<string> {
+    return this.foodRecordsService.extract(uid, user);
   }
 }

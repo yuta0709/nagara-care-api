@@ -11,6 +11,8 @@ import { User, UserRole } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { EliminationRecordDto } from './dtos/elimination-record.output.dto';
 import { EliminationRecordListResponseDto } from './dtos/elimination-record-list.output.dto';
+import { TranscriptionInputDto } from './dtos/transcription.input.dto';
+import { TranscriptionDto } from './dtos/transcription.output.dto';
 
 @Injectable()
 export class EliminationRecordsService {
@@ -194,5 +196,171 @@ export class EliminationRecordsService {
     }
 
     await this.prisma.eliminationRecord.delete({ where: { uid } });
+  }
+
+  // 文字起こし関連のメソッド
+  async getTranscription(
+    uid: string,
+    currentUser: User,
+  ): Promise<TranscriptionDto> {
+    const record = await this.prisma.eliminationRecord.findUnique({
+      where: { uid },
+      select: { transcription: true, tenantUid: true, residentUid: true },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`排泄記録が見つかりません（UID: ${uid}）`);
+    }
+
+    // 権限チェック
+    await this.checkPermission(
+      record.tenantUid,
+      record.residentUid,
+      currentUser,
+    );
+
+    return plainToInstance(TranscriptionDto, record, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async appendTranscription(
+    uid: string,
+    input: TranscriptionInputDto,
+    currentUser: User,
+  ): Promise<TranscriptionDto> {
+    const record = await this.prisma.eliminationRecord.findUnique({
+      where: { uid },
+      select: { transcription: true, tenantUid: true, residentUid: true },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`排泄記録が見つかりません（UID: ${uid}）`);
+    }
+
+    // 権限チェック
+    await this.checkPermission(
+      record.tenantUid,
+      record.residentUid,
+      currentUser,
+    );
+
+    const updatedRecord = await this.prisma.eliminationRecord.update({
+      where: { uid },
+      data: {
+        transcription: record.transcription
+          ? `${record.transcription}\n${input.transcription}`
+          : input.transcription,
+      },
+      select: { transcription: true },
+    });
+
+    return plainToInstance(TranscriptionDto, updatedRecord, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async updateTranscription(
+    uid: string,
+    input: TranscriptionInputDto,
+    currentUser: User,
+  ): Promise<TranscriptionDto> {
+    const record = await this.prisma.eliminationRecord.findUnique({
+      where: { uid },
+      select: { tenantUid: true, residentUid: true },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`排泄記録が見つかりません（UID: ${uid}）`);
+    }
+
+    // 権限チェック
+    await this.checkPermission(
+      record.tenantUid,
+      record.residentUid,
+      currentUser,
+    );
+
+    const updatedRecord = await this.prisma.eliminationRecord.update({
+      where: { uid },
+      data: {
+        transcription: input.transcription,
+      },
+      select: { transcription: true },
+    });
+
+    return plainToInstance(TranscriptionDto, updatedRecord, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async deleteTranscription(uid: string, currentUser: User): Promise<void> {
+    const record = await this.prisma.eliminationRecord.findUnique({
+      where: { uid },
+      select: { tenantUid: true, residentUid: true },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`排泄記録が見つかりません（UID: ${uid}）`);
+    }
+
+    // 権限チェック
+    await this.checkPermission(
+      record.tenantUid,
+      record.residentUid,
+      currentUser,
+    );
+
+    await this.prisma.eliminationRecord.update({
+      where: { uid },
+      data: {
+        transcription: null,
+      },
+    });
+  }
+
+  async extract(uid: string, currentUser: User): Promise<string> {
+    const record = await this.prisma.eliminationRecord.findUnique({
+      where: { uid },
+      select: { transcription: true, tenantUid: true, residentUid: true },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`排泄記録が見つかりません（UID: ${uid}）`);
+    }
+
+    // 権限チェック
+    await this.checkPermission(
+      record.tenantUid,
+      record.residentUid,
+      currentUser,
+    );
+
+    if (!record.transcription) {
+      return '';
+    }
+
+    // 将来的にLLMによる情報抽出を実装予定
+    // 現時点では空文字列を返す
+    return '';
+  }
+
+  // 権限チェック用のヘルパーメソッド
+  private async checkPermission(
+    tenantUid: string | null,
+    residentUid: string | null,
+    currentUser: User,
+  ): Promise<void> {
+    // GLOBAL_ADMINはすべての記録にアクセス可能
+    if (currentUser.role === UserRole.GLOBAL_ADMIN) {
+      return;
+    }
+
+    // TENANT_ADMINとCAREGIVERは自身のテナントの記録のみアクセス可能
+    if (tenantUid !== currentUser.tenantUid) {
+      throw new UnauthorizedException(
+        '他のテナントの記録にアクセスする権限がありません',
+      );
+    }
   }
 }
