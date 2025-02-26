@@ -17,6 +17,8 @@ import {
 } from './dtos/food-record-daily.output.dto';
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
+import { extractData } from './llm/extractor';
+import { FoodRecordExtractedDto } from './dtos/food-record-extracted.output.dto';
 
 @Injectable()
 export class FoodRecordsService {
@@ -435,7 +437,10 @@ export class FoodRecordsService {
     });
   }
 
-  async extract(uid: string, currentUser: User): Promise<string> {
+  async extract(
+    uid: string,
+    currentUser: User,
+  ): Promise<FoodRecordExtractedDto> {
     const record = await this.prisma.foodRecord.findUnique({
       where: { uid },
       select: { transcription: true, tenantUid: true, residentUid: true },
@@ -452,13 +457,11 @@ export class FoodRecordsService {
       currentUser,
     );
 
-    if (!record.transcription) {
-      return '';
-    }
+    const extractedData = await extractData(record.transcription ?? '');
 
-    // 将来的にLLMによる情報抽出を実装予定
-    // 現時点では空文字列を返す
-    return '';
+    return plainToInstance(FoodRecordExtractedDto, extractedData, {
+      excludeExtraneousValues: true,
+    });
   }
 
   // 権限チェック用のヘルパーメソッド

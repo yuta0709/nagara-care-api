@@ -625,7 +625,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/FoodRecordExtractedDto"
       security:
         - JWT-auth: []
       summary: 食事記録から情報を抽出
@@ -2423,6 +2423,34 @@ components:
           description: 文字起こしテキスト
       required:
         - transcription
+    FoodRecordExtractedDto:
+      type: object
+      properties:
+        mainCoursePercentage:
+          type: number
+          description: 主食の摂取率（0-100%）
+        sideDishPercentage:
+          type: number
+          description: 副食の摂取率（0-100%）
+        soupPercentage:
+          type: number
+          description: 汁物の摂取率（0-100%）
+        beverageType:
+          type: string
+          description: 飲み物の種類（水、お茶、その他）
+        beverageVolume:
+          type: number
+          description: 飲み物の摂取量（ml）
+        notes:
+          type: string
+          description: 特記事項
+      required:
+        - mainCoursePercentage
+        - sideDishPercentage
+        - soupPercentage
+        - beverageType
+        - beverageVolume
+        - notes
     BathRecordDto:
       type: object
       properties:

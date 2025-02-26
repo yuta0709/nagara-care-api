@@ -29,6 +29,7 @@ import { FoodRecordDto } from './dtos/food-record.output.dto';
 import { DailyFoodRecordsListResponseDto } from './dtos/food-record-daily.output.dto';
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
+import { FoodRecordExtractedDto } from './dtos/food-record-extracted.output.dto';
 
 @ApiTags('food-records')
 @Controller('residents/:residentUid/food-records')
@@ -253,12 +254,12 @@ export class FoodRecordsController {
   @ApiResponse({
     status: 200,
     description: '食事記録からの情報抽出に成功',
-    type: String,
+    type: FoodRecordExtractedDto,
   })
   extract(
     @Param('uid') uid: string,
     @UserDecorator() user: User,
-  ): Promise<string> {
+  ): Promise<FoodRecordExtractedDto> {
     return this.foodRecordsService.extract(uid, user);
   }
 }
