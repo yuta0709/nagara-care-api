@@ -409,6 +409,39 @@ paths:
         - JWT-auth: []
       summary: 食事記録を作成
       tags: *a5
+  /residents/{residentUid}/food-records/daily:
+    get:
+      operationId: getDailyFoodRecords
+      parameters:
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema:
+            type: string
+        - name: startDate
+          required: false
+          in: query
+          description: 開始日（YYYY-MM-DD形式）。指定しない場合は過去30日間
+          schema:
+            type: string
+        - name: endDate
+          required: false
+          in: query
+          description: 終了日（YYYY-MM-DD形式）。指定しない場合は現在日
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 日別食事記録一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyFoodRecordsListResponseDto"
+      security:
+        - JWT-auth: []
+      summary: 利用者の日別食事記録一覧を取得
+      tags: *a5
   /residents/{residentUid}/food-records/{uid}:
     patch:
       operationId: updateFoodRecord
@@ -1679,6 +1712,42 @@ components:
         total:
           type: number
           description: 総件数
+      required:
+        - items
+        - total
+    DailyFoodRecordsDto:
+      type: object
+      properties:
+        date:
+          type: string
+          description: 日付
+          example: 2024-03-20
+        breakfast:
+          description: 朝食の記録
+          allOf:
+            - $ref: "#/components/schemas/FoodRecordDto"
+        lunch:
+          description: 昼食の記録
+          allOf:
+            - $ref: "#/components/schemas/FoodRecordDto"
+        dinner:
+          description: 夕食の記録
+          allOf:
+            - $ref: "#/components/schemas/FoodRecordDto"
+      required:
+        - date
+    DailyFoodRecordsListResponseDto:
+      type: object
+      properties:
+        items:
+          description: 日別食事記録一覧
+          type: array
+          items:
+            $ref: "#/components/schemas/DailyFoodRecordsDto"
+        total:
+          type: number
+          description: 総日数
+          example: 10
       required:
         - items
         - total

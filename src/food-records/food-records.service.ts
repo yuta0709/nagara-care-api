@@ -7,10 +7,14 @@ import {
 import { PrismaService } from '../prisma.service';
 import { FoodRecordCreateInputDto } from './dtos/food-record-create.input.dto';
 import { FoodRecordUpdateInputDto } from './dtos/food-record-update.input.dto';
-import { User, UserRole } from '@prisma/client';
+import { User, UserRole, MealTime } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { FoodRecordDto } from './dtos/food-record.output.dto';
 import { FoodRecordListResponseDto } from './dtos/food-record-list.output.dto';
+import {
+  DailyFoodRecordsDto,
+  DailyFoodRecordsListResponseDto,
+} from './dtos/food-record-daily.output.dto';
 
 @Injectable()
 export class FoodRecordsService {
@@ -247,5 +251,85 @@ export class FoodRecordsService {
     }
 
     await this.prisma.foodRecord.delete({ where: { uid } });
+  }
+
+  async findDailyRecordsByResident(
+    residentUid: string,
+    currentUser: User,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<DailyFoodRecordsListResponseDto> {
+    const resident = await this.prisma.resident.findUnique({
+      where: { uid: residentUid },
+    });
+    if (!resident) {
+      throw new NotFoundException(`Resident with uid ${residentUid} not found`);
+    }
+
+    // GLOBAL_ADMIN以外は自身のテナントの記録のみ取得可能
+    if (
+      currentUser.role !== UserRole.GLOBAL_ADMIN &&
+      resident.tenantUid !== currentUser.tenantUid
+    ) {
+      throw new UnauthorizedException(
+        '他のテナントの利用者の記録を取得する権限がありません',
+      );
+    }
+
+    // 日付範囲の設定（デフォルトは過去30日間）
+    const now = new Date();
+    const end = endDate ? new Date(endDate) : new Date(now);
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const start = startDate ? new Date(startDate) : thirtyDaysAgo;
+
+    // 指定期間内の全ての食事記録を取得
+    const foodRecords = await this.prisma.foodRecord.findMany({
+      where: {
+        residentUid,
+        recordedAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+      orderBy: { recordedAt: 'desc' },
+    });
+
+    // 日付ごとにグループ化
+    const recordsByDate = new Map<string, FoodRecordDto[]>();
+
+    foodRecords.forEach((record) => {
+      const date = new Date(record.recordedAt).toISOString().split('T')[0]; // YYYY-MM-DD形式
+      if (!recordsByDate.has(date)) {
+        recordsByDate.set(date, []);
+      }
+      recordsByDate.get(date).push(
+        plainToInstance(FoodRecordDto, record, {
+          excludeExtraneousValues: true,
+        }),
+      );
+    });
+
+    // 日付ごとに朝食・昼食・夕食に分類
+    const dailyRecords: DailyFoodRecordsDto[] = [];
+
+    recordsByDate.forEach((records, date) => {
+      const dailyRecord: DailyFoodRecordsDto = {
+        date,
+        breakfast: records.find((r) => r.mealTime === MealTime.BREAKFAST),
+        lunch: records.find((r) => r.mealTime === MealTime.LUNCH),
+        dinner: records.find((r) => r.mealTime === MealTime.DINNER),
+      };
+
+      dailyRecords.push(dailyRecord);
+    });
+
+    // 日付の降順でソート
+    dailyRecords.sort((a, b) => b.date.localeCompare(a.date));
+
+    return {
+      items: dailyRecords,
+      total: dailyRecords.length,
+    };
   }
 }
