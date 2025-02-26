@@ -118,6 +118,7 @@ model FoodRecord {
   soupPercentage       Int
   beverageType         BeverageType
   beverageVolume       Int
+  transcription        String?
 }
 
 model BathRecord {
@@ -134,6 +135,7 @@ model BathRecord {
   recordedAt DateTime
   notes      String?
   bathMethod String
+  transcription String?
 }
 
 model BeverageRecord {
@@ -151,6 +153,7 @@ model BeverageRecord {
   notes        String?
   beverageType BeverageType
   volume       Int
+  transcription String?
 }
 
 model EliminationRecord {
@@ -175,6 +178,7 @@ model EliminationRecord {
   urinaryIncontinence Boolean?
   urineAppearance     String?
   urineVolume         Int?
+  transcription       String?
 }
 
 model DailyRecord {
@@ -191,6 +195,7 @@ model DailyRecord {
   recordedAt  DateTime
   notes       String?
   dailyStatus DailyStatus?
+  transcription String?
 }
 
 // アセスメント関連
