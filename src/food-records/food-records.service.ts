@@ -111,17 +111,6 @@ export class FoodRecordsService {
         );
       }
 
-      // 24時間以内の記録のみ更新可能
-      const now = new Date();
-      const recordDate = new Date(existingRecord.recordedAt);
-      const hoursDiff =
-        (now.getTime() - recordDate.getTime()) / (1000 * 60 * 60);
-      if (hoursDiff > 24) {
-        throw new BadRequestException(
-          '作成から24時間以上経過した記録は更新できません',
-        );
-      }
-
       const updatedRecord = await this.prisma.foodRecord.update({
         where: { uid: existingRecord.uid },
         data: {
@@ -204,16 +193,6 @@ export class FoodRecordsService {
     ) {
       throw new UnauthorizedException(
         '他の介護者の記録を更新する権限がありません',
-      );
-    }
-
-    // 24時間以内の記録のみ更新可能
-    const now = new Date();
-    const recordDate = new Date(record.recordedAt);
-    const hoursDiff = (now.getTime() - recordDate.getTime()) / (1000 * 60 * 60);
-    if (hoursDiff > 24) {
-      throw new BadRequestException(
-        '作成から24時間以上経過した記録は更新できません',
       );
     }
 
