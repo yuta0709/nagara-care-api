@@ -78,6 +78,66 @@ export class FoodRecordsService {
       );
     }
 
+    // 同じ利用者の同じ食事時間帯の記録が既に存在するか確認
+    const existingRecord = await this.prisma.foodRecord.findFirst({
+      where: {
+        residentUid: input.residentUid,
+        mealTime: input.mealTime,
+        // 同じ日付の記録を検索するために日付の範囲を設定
+        recordedAt: {
+          gte: new Date(
+            new Date(input.recordedAt ?? new Date()).setHours(0, 0, 0, 0),
+          ),
+          lt: new Date(
+            new Date(input.recordedAt ?? new Date()).setHours(23, 59, 59, 999),
+          ),
+        },
+      },
+    });
+
+    // 既存の記録がある場合は更新
+    if (existingRecord) {
+      // CAREGIVERは自身が作成した記録のみ更新可能
+      if (
+        currentUser.role === UserRole.CAREGIVER &&
+        existingRecord.caregiverUid !== currentUser.uid
+      ) {
+        throw new UnauthorizedException(
+          '他の介護者の記録を更新する権限がありません',
+        );
+      }
+
+      // 24時間以内の記録のみ更新可能
+      const now = new Date();
+      const recordDate = new Date(existingRecord.recordedAt);
+      const hoursDiff =
+        (now.getTime() - recordDate.getTime()) / (1000 * 60 * 60);
+      if (hoursDiff > 24) {
+        throw new BadRequestException(
+          '作成から24時間以上経過した記録は更新できません',
+        );
+      }
+
+      const updatedRecord = await this.prisma.foodRecord.update({
+        where: { uid: existingRecord.uid },
+        data: {
+          recordedAt: input.recordedAt ?? new Date(),
+          notes: input.notes,
+          mainCoursePercentage: input.mainCoursePercentage,
+          sideDishPercentage: input.sideDishPercentage,
+          soupPercentage: input.soupPercentage,
+          beverageType: input.beverageType,
+          beverageVolume: input.beverageVolume,
+          caregiverUid: currentUser.uid, // 更新者を現在のユーザーに変更
+        },
+      });
+
+      return plainToInstance(FoodRecordDto, updatedRecord, {
+        excludeExtraneousValues: true,
+      });
+    }
+
+    // 既存の記録がない場合は新規作成
     const record = await this.prisma.foodRecord.create({
       data: {
         recordedAt: input.recordedAt ?? new Date(),
