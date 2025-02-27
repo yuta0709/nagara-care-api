@@ -1151,6 +1151,31 @@ paths:
       summary: 日常記録を作成
       tags: *a8
   /residents/{residentUid}/daily-records/{uid}:
+    get:
+      operationId: getDailyRecord
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 日常記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 日常記録の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyRecordDto"
+      security:
+        - JWT-auth: []
+      summary: 個別の日常記録を取得
+      tags: *a8
     patch:
       operationId: updateDailyRecord
       parameters:

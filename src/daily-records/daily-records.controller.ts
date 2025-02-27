@@ -49,6 +49,27 @@ export class DailyRecordsController {
     return this.dailyRecordsService.findByResident(residentUid, user);
   }
 
+  @Get(':uid')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'getDailyRecord',
+    summary: '個別の日常記録を取得',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '日常記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '日常記録の取得に成功',
+    type: DailyRecordDto,
+  })
+  findOne(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<DailyRecordDto> {
+    return this.dailyRecordsService.findOne(uid, user);
+  }
+
   @Post()
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')

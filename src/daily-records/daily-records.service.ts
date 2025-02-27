@@ -55,6 +55,29 @@ export class DailyRecordsService {
     };
   }
 
+  async findOne(uid: string, currentUser: User): Promise<DailyRecordDto> {
+    const record = await this.prisma.dailyRecord.findUnique({
+      where: { uid },
+    });
+    if (!record) {
+      throw new NotFoundException(`Daily record with uid ${uid} not found`);
+    }
+
+    // GLOBAL_ADMIN以外は自身のテナントの記録のみ取得可能
+    if (
+      currentUser.role !== UserRole.GLOBAL_ADMIN &&
+      record.tenantUid !== currentUser.tenantUid
+    ) {
+      throw new UnauthorizedException(
+        '他のテナントの利用者の記録を取得する権限がありません',
+      );
+    }
+
+    return plainToInstance(DailyRecordDto, record, {
+      excludeExtraneousValues: true,
+    });
+  }
+
   async create(
     input: DailyRecordCreateInputDto,
     currentUser: User,
