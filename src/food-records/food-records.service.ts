@@ -261,10 +261,39 @@ export class FoodRecordsService {
 
     // 日付範囲の設定（デフォルトは過去30日間）
     const now = new Date();
-    const end = endDate ? new Date(endDate) : new Date(now);
+
+    // 日本時間の日付を取得する関数
+    const getJSTDateString = (date: Date): string => {
+      // UTC時間に9時間を加算して日本時間に変換
+      const jstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+      return jstDate.toISOString().split('T')[0]; // YYYY-MM-DD形式
+    };
+
+    // 日本時間の日付の開始時刻（00:00:00.000）をUTCで取得
+    const getJSTStartOfDay = (dateString: string): Date => {
+      // 日本時間の00:00:00をUTCに変換（-9時間）
+      return new Date(`${dateString}T00:00:00.000+09:00`);
+    };
+
+    // 日本時間の日付の終了時刻（23:59:59.999）をUTCで取得
+    const getJSTEndOfDay = (dateString: string): Date => {
+      // 日本時間の23:59:59.999をUTCに変換（-9時間）
+      return new Date(`${dateString}T23:59:59.999+09:00`);
+    };
+
+    // 終了日の設定
+    const endDateString = endDate
+      ? getJSTDateString(new Date(endDate))
+      : getJSTDateString(now);
+    const end = getJSTEndOfDay(endDateString);
+
+    // 開始日の設定（デフォルトは30日前）
     const thirtyDaysAgo = new Date(now);
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const start = startDate ? new Date(startDate) : thirtyDaysAgo;
+    const startDateString = startDate
+      ? getJSTDateString(new Date(startDate))
+      : getJSTDateString(thirtyDaysAgo);
+    const start = getJSTStartOfDay(startDateString);
 
     // 指定期間内の全ての食事記録を取得
     const foodRecords = await this.prisma.foodRecord.findMany({
@@ -282,7 +311,8 @@ export class FoodRecordsService {
     const recordsByDate = new Map<string, FoodRecordDto[]>();
 
     foodRecords.forEach((record) => {
-      const date = new Date(record.recordedAt).toISOString().split('T')[0]; // YYYY-MM-DD形式
+      // 日本時間の日付を取得
+      const date = getJSTDateString(record.recordedAt);
       if (!recordsByDate.has(date)) {
         recordsByDate.set(date, []);
       }
