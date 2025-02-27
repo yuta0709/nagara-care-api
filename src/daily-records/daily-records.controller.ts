@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
 } from '@nestjs/common';
 import { DailyRecordsService } from './daily-records.service';
 import { DailyRecordCreateInputDto } from './dtos/daily-record-create.input.dto';
@@ -23,6 +24,8 @@ import { User as UserDecorator } from '../users/user.decorator';
 import { User } from '@prisma/client';
 import { DailyRecordListResponseDto } from './dtos/daily-record-list.output.dto';
 import { DailyRecordDto } from './dtos/daily-record.output.dto';
+import { TranscriptionDto } from './dtos/transcription.output.dto';
+import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 
 @ApiTags('daily-records')
 @Controller('residents/:residentUid/daily-records')
@@ -132,5 +135,90 @@ export class DailyRecordsController {
     @UserDecorator() user: User,
   ): Promise<void> {
     return this.dailyRecordsService.delete(uid, user);
+  }
+
+  @Get(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'getDailyRecordTranscription',
+    summary: '日常記録の文字起こしを取得',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '日常記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '日常記録の文字起こし取得に成功',
+    type: TranscriptionDto,
+  })
+  getTranscription(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<TranscriptionDto> {
+    return this.dailyRecordsService.getTranscription(uid, user);
+  }
+
+  @Patch(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'appendDailyRecordTranscription',
+    summary: '日常記録の文字起こしを追記',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '日常記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '日常記録の文字起こし追記に成功',
+    type: TranscriptionDto,
+  })
+  appendTranscription(
+    @Param('uid') uid: string,
+    @Body() input: TranscriptionInputDto,
+    @UserDecorator() user: User,
+  ): Promise<TranscriptionDto> {
+    return this.dailyRecordsService.appendTranscription(uid, input, user);
+  }
+
+  @Put(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'updateDailyRecordTranscription',
+    summary: '日常記録の文字起こしを置換',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '日常記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '日常記録の文字起こし置換に成功',
+    type: TranscriptionDto,
+  })
+  updateTranscription(
+    @Param('uid') uid: string,
+    @Body() input: TranscriptionInputDto,
+    @UserDecorator() user: User,
+  ): Promise<TranscriptionDto> {
+    return this.dailyRecordsService.updateTranscription(uid, input, user);
+  }
+
+  @Delete(':uid/transcription')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'deleteDailyRecordTranscription',
+    summary: '日常記録の文字起こしを削除',
+  })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
+  @ApiParam({ name: 'uid', description: '日常記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '日常記録の文字起こし削除に成功',
+  })
+  deleteTranscription(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<void> {
+    return this.dailyRecordsService.deleteTranscription(uid, user);
   }
 }

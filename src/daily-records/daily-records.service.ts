@@ -11,6 +11,8 @@ import { User, UserRole } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { DailyRecordDto } from './dtos/daily-record.output.dto';
 import { DailyRecordListResponseDto } from './dtos/daily-record-list.output.dto';
+import { TranscriptionDto } from './dtos/transcription.output.dto';
+import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 
 @Injectable()
 export class DailyRecordsService {
@@ -205,5 +207,138 @@ export class DailyRecordsService {
     }
 
     await this.prisma.dailyRecord.delete({ where: { uid } });
+  }
+
+  // 文字起こし関連のメソッド
+  async getTranscription(
+    uid: string,
+    currentUser: User,
+  ): Promise<TranscriptionDto> {
+    const record = await this.prisma.dailyRecord.findUnique({
+      where: { uid },
+      select: { transcription: true, tenantUid: true, residentUid: true },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`日常記録が見つかりません（UID: ${uid}）`);
+    }
+
+    // GLOBAL_ADMIN以外は自身のテナントの記録のみ取得可能
+    if (
+      currentUser.role !== UserRole.GLOBAL_ADMIN &&
+      record.tenantUid !== currentUser.tenantUid
+    ) {
+      throw new UnauthorizedException(
+        '他のテナントの利用者の記録を取得する権限がありません',
+      );
+    }
+
+    return plainToInstance(TranscriptionDto, record, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async appendTranscription(
+    uid: string,
+    input: TranscriptionInputDto,
+    currentUser: User,
+  ): Promise<TranscriptionDto> {
+    const record = await this.prisma.dailyRecord.findUnique({
+      where: { uid },
+      select: { transcription: true, tenantUid: true, residentUid: true },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`日常記録が見つかりません（UID: ${uid}）`);
+    }
+
+    // GLOBAL_ADMIN以外は自身のテナントの記録のみ更新可能
+    if (
+      currentUser.role !== UserRole.GLOBAL_ADMIN &&
+      record.tenantUid !== currentUser.tenantUid
+    ) {
+      throw new UnauthorizedException(
+        '他のテナントの利用者の記録を更新する権限がありません',
+      );
+    }
+
+    const updatedRecord = await this.prisma.dailyRecord.update({
+      where: { uid },
+      data: {
+        transcription: record.transcription
+          ? `${record.transcription}\n${input.transcription}`
+          : input.transcription,
+      },
+      select: { transcription: true },
+    });
+
+    return plainToInstance(TranscriptionDto, updatedRecord, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async updateTranscription(
+    uid: string,
+    input: TranscriptionInputDto,
+    currentUser: User,
+  ): Promise<TranscriptionDto> {
+    const record = await this.prisma.dailyRecord.findUnique({
+      where: { uid },
+      select: { transcription: true, tenantUid: true, residentUid: true },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`日常記録が見つかりません（UID: ${uid}）`);
+    }
+
+    // GLOBAL_ADMIN以外は自身のテナントの記録のみ更新可能
+    if (
+      currentUser.role !== UserRole.GLOBAL_ADMIN &&
+      record.tenantUid !== currentUser.tenantUid
+    ) {
+      throw new UnauthorizedException(
+        '他のテナントの利用者の記録を更新する権限がありません',
+      );
+    }
+
+    const updatedRecord = await this.prisma.dailyRecord.update({
+      where: { uid },
+      data: {
+        transcription: input.transcription,
+      },
+      select: { transcription: true },
+    });
+
+    return plainToInstance(TranscriptionDto, updatedRecord, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async deleteTranscription(uid: string, currentUser: User): Promise<void> {
+    const record = await this.prisma.dailyRecord.findUnique({
+      where: { uid },
+      select: { transcription: true, tenantUid: true, residentUid: true },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`日常記録が見つかりません（UID: ${uid}）`);
+    }
+
+    // GLOBAL_ADMIN以外は自身のテナントの記録のみ更新可能
+    if (
+      currentUser.role !== UserRole.GLOBAL_ADMIN &&
+      record.tenantUid !== currentUser.tenantUid
+    ) {
+      throw new UnauthorizedException(
+        '他のテナントの利用者の記録を更新する権限がありません',
+      );
+    }
+
+    await this.prisma.dailyRecord.update({
+      where: { uid },
+      data: {
+        transcription: null,
+      },
+    });
   }
 }

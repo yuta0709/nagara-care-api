@@ -1228,6 +1228,115 @@ paths:
         - JWT-auth: []
       summary: 日常記録を削除
       tags: *a8
+  /residents/{residentUid}/daily-records/{uid}/transcription:
+    get:
+      operationId: getDailyRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 日常記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 日常記録の文字起こし取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 日常記録の文字起こしを取得
+      tags: *a8
+    patch:
+      operationId: appendDailyRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 日常記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: 日常記録の文字起こし追記に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 日常記録の文字起こしを追記
+      tags: *a8
+    put:
+      operationId: updateDailyRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 日常記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: 日常記録の文字起こし置換に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranscriptionDto"
+      security:
+        - JWT-auth: []
+      summary: 日常記録の文字起こしを置換
+      tags: *a8
+    delete:
+      operationId: deleteDailyRecordTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 日常記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 日常記録の文字起こし削除に成功
+      security:
+        - JWT-auth: []
+      summary: 日常記録の文字起こしを削除
+      tags: *a8
   /residents/{residentUid}/beverage-records:
     get:
       operationId: getBeverageRecords
