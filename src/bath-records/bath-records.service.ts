@@ -13,6 +13,8 @@ import { BathRecordDto } from './dtos/bath-record.output.dto';
 import { BathRecordListResponseDto } from './dtos/bath-record-list.output.dto';
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
+import { extractData } from './llm/extractor';
+import { BathRecordExtractedDto } from './dtos/bath-record-extracted.output.dto';
 
 @Injectable()
 export class BathRecordsService {
@@ -307,30 +309,39 @@ export class BathRecordsService {
     });
   }
 
-  async extract(uid: string, currentUser: User): Promise<string> {
+  async extract(
+    uid: string,
+    currentUser: User,
+  ): Promise<BathRecordExtractedDto> {
     const record = await this.prisma.bathRecord.findUnique({
       where: { uid },
-      select: { transcription: true, tenantUid: true, residentUid: true },
     });
 
     if (!record) {
-      throw new NotFoundException(`入浴記録が見つかりません（UID: ${uid}）`);
+      throw new NotFoundException(`Bath record with uid ${uid} not found`);
     }
 
-    // 権限チェック
-    await this.checkPermission(
-      record.tenantUid,
-      record.residentUid,
-      currentUser,
-    );
+    // GLOBAL_ADMIN以外は自身のテナントの記録のみ取得可能
+    if (
+      currentUser.role !== UserRole.GLOBAL_ADMIN &&
+      record.tenantUid !== currentUser.tenantUid
+    ) {
+      throw new UnauthorizedException(
+        '他のテナントの利用者の記録を取得する権限がありません',
+      );
+    }
 
+    // 文字起こしデータがない場合はエラー
     if (!record.transcription) {
-      return '';
+      throw new BadRequestException('文字起こしデータが存在しません');
     }
 
-    // 将来的にLLMによる情報抽出を実装予定
-    // 現時点では空文字列を返す
-    return '';
+    // LLMを使用してデータを抽出
+    const extracted = await extractData(record.transcription);
+
+    return plainToInstance(BathRecordExtractedDto, extracted, {
+      excludeExtraneousValues: true,
+    });
   }
 
   // 権限チェック用のヘルパーメソッド

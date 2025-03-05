@@ -26,6 +26,7 @@ import { BathRecordListResponseDto } from './dtos/bath-record-list.output.dto';
 import { BathRecordDto } from './dtos/bath-record.output.dto';
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
+import { BathRecordExtractedDto } from './dtos/bath-record-extracted.output.dto';
 
 @ApiTags('bath-records')
 @Controller('residents/:residentUid/bath-records')
@@ -212,13 +213,13 @@ export class BathRecordsController {
   @ApiParam({ name: 'uid', description: '入浴記録UID' })
   @ApiResponse({
     status: 200,
-    description: '入浴記録からの情報抽出に成功',
-    type: String,
+    description: '入浴記録の情報抽出に成功',
+    type: BathRecordExtractedDto,
   })
   extract(
     @Param('uid') uid: string,
     @UserDecorator() user: User,
-  ): Promise<string> {
+  ): Promise<BathRecordExtractedDto> {
     return this.bathRecordsService.extract(uid, user);
   }
 }
