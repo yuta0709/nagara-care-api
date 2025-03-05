@@ -26,6 +26,7 @@ import { BeverageRecordListResponseDto } from './dtos/beverage-record-list.outpu
 import { BeverageRecordDto } from './dtos/beverage-record.output.dto';
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
+import { BeverageRecordExtractedDto } from './dtos/beverage-record-extracted.output.dto';
 
 @ApiTags('beverage-records')
 @Controller('residents/:residentUid/beverage-records')
@@ -208,19 +209,19 @@ export class BeverageRecordsController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'extractBeverageRecord',
-    summary: '飲料記録から情報を抽出',
+    summary: '飲み物摂取記録から情報を抽出',
   })
   @ApiParam({ name: 'residentUid', description: '利用者UID' })
-  @ApiParam({ name: 'uid', description: '飲料記録UID' })
+  @ApiParam({ name: 'uid', description: '飲み物摂取記録UID' })
   @ApiResponse({
     status: 200,
-    description: '飲料記録からの情報抽出に成功',
-    type: String,
+    description: '飲み物摂取記録の情報抽出に成功',
+    type: BeverageRecordExtractedDto,
   })
   extract(
     @Param('uid') uid: string,
     @UserDecorator() user: User,
-  ): Promise<string> {
+  ): Promise<BeverageRecordExtractedDto> {
     return this.beverageRecordsService.extract(uid, user);
   }
 }
