@@ -98,8 +98,9 @@ export class ChatController {
   async updateThread(
     @Param('uid') uid: string,
     @Body() input: ThreadUpdateInputDto,
+    @UserDecorator() user: User,
   ) {
-    return this.chatService.updateThread(uid, input);
+    return this.chatService.updateThread(uid, input, user);
   }
 
   @Delete(':uid')
@@ -114,9 +115,10 @@ export class ChatController {
     required: true,
     description: 'スレッドのUID',
   })
-  async deleteThread(@Param('uid') uid: string) {
-    return this.chatService.deleteThread(uid);
+  async deleteThread(@Param('uid') uid: string, @UserDecorator() user: User) {
+    return this.chatService.deleteThread(uid, user);
   }
+
   @Post(':uid/messages')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')

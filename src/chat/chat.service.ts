@@ -35,9 +35,9 @@ export class ChatService {
     });
   }
 
-  async updateThread(uid: string, input: ThreadUpdateInputDto) {
+  async updateThread(uid: string, input: ThreadUpdateInputDto, user: User) {
     const thread = await this.prisma.thread.update({
-      where: { uid },
+      where: { uid, createdByUid: user.uid },
       data: { title: input.title },
     });
 
@@ -46,9 +46,9 @@ export class ChatService {
     });
   }
 
-  async deleteThread(uid: string) {
+  async deleteThread(uid: string, user: User) {
     await this.prisma.thread.delete({
-      where: { uid },
+      where: { uid, createdByUid: user.uid },
     });
 
     return;
