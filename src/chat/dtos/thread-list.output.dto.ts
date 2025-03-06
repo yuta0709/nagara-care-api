@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 
 export class ThreadListItemOutputDto {
   @ApiProperty()
@@ -24,7 +24,7 @@ export class ThreadListItemOutputDto {
 }
 
 export class ThreadListOutputDto {
-  @ApiProperty()
+  @ApiProperty({ type: [ThreadListItemOutputDto] })
   @Expose()
   items: ThreadListItemOutputDto[];
 

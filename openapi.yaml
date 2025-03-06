@@ -3556,18 +3556,63 @@ components:
         - givenNameFurigana
         - dateOfBirth
         - gender
+    ThreadListItemOutputDto:
+      type: object
+      properties:
+        uid:
+          type: string
+        title:
+          type: string
+        createdByUid:
+          type: string
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+      required:
+        - uid
+        - title
+        - createdByUid
+        - createdAt
+        - updatedAt
     ThreadListOutputDto:
       type: object
       properties:
         items:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/ThreadListItemOutputDto"
         total:
           type: number
       required:
         - items
         - total
+    MessageOutputDto:
+      type: object
+      properties:
+        uid:
+          type: string
+        threadUid:
+          type: string
+        content:
+          type: string
+        role:
+          type: string
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+      required:
+        - uid
+        - threadUid
+        - content
+        - role
+        - createdAt
+        - updatedAt
     ThreadOutputDto:
       type: object
       properties:
@@ -3586,7 +3631,7 @@ components:
         messages:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/MessageOutputDto"
       required:
         - uid
         - title

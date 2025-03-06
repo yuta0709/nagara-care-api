@@ -23,7 +23,7 @@ export class ThreadOutputDto {
   @Expose()
   updatedAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ type: [MessageOutputDto] })
   @Expose()
   messages: MessageOutputDto[];
 }
