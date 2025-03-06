@@ -1918,6 +1918,10 @@ paths:
       responses:
         "201":
           description: スレッドの作成に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadCreateOutputDto"
       security:
         - JWT-auth: []
       summary: 新しいスレッドを作成
@@ -3594,6 +3598,27 @@ components:
         - givenNameFurigana
         - dateOfBirth
         - gender
+    ThreadCreateOutputDto:
+      type: object
+      properties:
+        uid:
+          type: string
+        title:
+          type: string
+        createdByUid:
+          type: string
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+      required:
+        - uid
+        - title
+        - createdByUid
+        - createdAt
+        - updatedAt
     ThreadListItemOutputDto:
       type: object
       properties:

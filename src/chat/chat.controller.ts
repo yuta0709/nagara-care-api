@@ -23,6 +23,7 @@ import {
 import { Authorize } from '../auth/roles.guard';
 import { UserRole } from '@prisma/client';
 import { ThreadUpdateInputDto } from './dtos/thread-update.input.dto';
+import { ThreadCreateOutputDto } from './dtos/thread-create.output.dto';
 
 @ApiTags('chats')
 @Controller('chats')
@@ -39,6 +40,7 @@ export class ChatController {
   @ApiResponse({
     status: 201,
     description: 'スレッドの作成に成功',
+    type: ThreadCreateOutputDto,
   })
   async createThread(@UserDecorator() user: User) {
     return this.chatService.createThread(user);
