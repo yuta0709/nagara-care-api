@@ -77,6 +77,7 @@ model User {
   eliminationRecords EliminationRecord[]
   dailyRecords       DailyRecord[]
   assessments        Assessment[]
+  threads            Thread[]
 }
 
 model Resident {
@@ -132,9 +133,9 @@ model BathRecord {
   residentUid String?
   resident    Resident? @relation(fields: [residentUid], references: [uid], onDelete: SetNull)
 
-  recordedAt DateTime
-  notes      String?
-  bathMethod String
+  recordedAt    DateTime
+  notes         String?
+  bathMethod    String
   transcription String?
 }
 
@@ -149,10 +150,10 @@ model BeverageRecord {
   residentUid String?
   resident    Resident? @relation(fields: [residentUid], references: [uid], onDelete: SetNull)
 
-  recordedAt   DateTime
-  notes        String?
-  beverageType BeverageType
-  volume       Int
+  recordedAt    DateTime
+  notes         String?
+  beverageType  BeverageType
+  volume        Int
   transcription String?
 }
 
@@ -192,9 +193,9 @@ model DailyRecord {
   residentUid String?
   resident    Resident? @relation(fields: [residentUid], references: [uid], onDelete: SetNull)
 
-  recordedAt  DateTime
-  notes       String?
-  dailyStatus DailyStatus?
+  recordedAt    DateTime
+  notes         String?
+  dailyStatus   DailyStatus?
   transcription String?
 }
 
@@ -302,6 +303,30 @@ model Assessment {
   personalTraits         String?
   // 文字起こし
   transcription          String?
-  createdAt              DateTime     @default(now())
-  updatedAt              DateTime     @updatedAt
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+}
+
+model Thread {
+  uid          String    @id @default(uuid())
+  createdBy    User      @relation(fields: [createdByUid], references: [uid])
+  createdByUid String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  messages     Message[]
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+model Message {
+  uid       String      @id @default(uuid())
+  threadUid String
+  thread    Thread      @relation(fields: [threadUid], references: [uid])
+  content   String
+  role      MessageRole
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
