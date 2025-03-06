@@ -857,11 +857,11 @@ paths:
           schema: {}
       responses:
         "200":
-          description: 入浴記録からの情報抽出に成功
+          description: 入浴記録の情報抽出に成功
           content:
             application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/BathRecordExtractedDto"
       security:
         - JWT-auth: []
       summary: 入浴記録から情報を抽出
@@ -1554,7 +1554,7 @@ paths:
         - name: uid
           required: true
           in: path
-          description: 飲料記録UID
+          description: 飲み物摂取記録UID
           schema:
             type: string
         - name: residentUid
@@ -1564,14 +1564,14 @@ paths:
           schema: {}
       responses:
         "200":
-          description: 飲料記録からの情報抽出に成功
+          description: 飲み物摂取記録の情報抽出に成功
           content:
             application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/BeverageRecordExtractedDto"
       security:
         - JWT-auth: []
-      summary: 飲料記録から情報を抽出
+      summary: 飲み物摂取記録から情報を抽出
       tags: *a9
   /assessments:
     get:
@@ -1911,6 +1911,76 @@ paths:
         - JWT-auth: []
       summary: アセスメント対象者を削除
       tags: *a11
+  /chats:
+    post:
+      operationId: createThread
+      parameters: []
+      responses:
+        "201":
+          description: スレッドの作成に成功
+      security:
+        - JWT-auth: []
+      summary: 新しいスレッドを作成
+      tags: &a12
+        - chats
+    get:
+      operationId: getThreads
+      parameters: []
+      responses:
+        "200":
+          description: スレッド一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadListOutputDto"
+      security:
+        - JWT-auth: []
+      summary: スレッド一覧を取得
+      tags: *a12
+  /chats/{uid}:
+    get:
+      operationId: getThread
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: スレッドのUID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: スレッドの取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadOutputDto"
+      security:
+        - JWT-auth: []
+      summary: 特定のスレッドを取得
+      tags: *a12
+  /chats/{uid}/messages:
+    post:
+      operationId: createMessage
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: スレッドのUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageCreateInputDto"
+      responses:
+        "201":
+          description: メッセージの作成に成功
+      security:
+        - JWT-auth: []
+      summary: メッセージを作成
+      tags: *a12
 info:
   title: Nagara Care API
   description: ""
@@ -2667,6 +2737,18 @@ components:
       required:
         - recordedAt
         - bathMethod
+    BathRecordExtractedDto:
+      type: object
+      properties:
+        bathMethod:
+          type: string
+          description: 入浴方法
+        notes:
+          type: string
+          description: 特記事項
+      required:
+        - bathMethod
+        - notes
     EliminationRecordDto:
       type: object
       properties:
@@ -3055,6 +3137,26 @@ components:
         - recordedAt
         - beverageType
         - volume
+    BeverageRecordExtractedDto:
+      type: object
+      properties:
+        beverageType:
+          type: string
+          description: 飲み物の種類
+          enum:
+            - WATER
+            - TEA
+            - OTHER
+        volume:
+          type: number
+          description: 飲み物の量（ml）
+        notes:
+          type: string
+          description: 特記事項
+      required:
+        - beverageType
+        - volume
+        - notes
     SubjectDto:
       type: object
       properties:
@@ -3454,3 +3556,44 @@ components:
         - givenNameFurigana
         - dateOfBirth
         - gender
+    ThreadListOutputDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: string
+        total:
+          type: number
+      required:
+        - items
+        - total
+    ThreadOutputDto:
+      type: object
+      properties:
+        uid:
+          type: string
+        title:
+          type: string
+        createdByUid:
+          type: string
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+        messages:
+          type: array
+          items:
+            type: string
+      required:
+        - uid
+        - title
+        - createdByUid
+        - createdAt
+        - updatedAt
+        - messages
+    MessageCreateInputDto:
+      type: object
+      properties: {}

@@ -14,6 +14,8 @@ import { DailyRecordsModule } from './daily-records/daily-records.module';
 import { SeedModule } from './seed/seed.module';
 import { AssessmentsModule } from './assessments/assessments.module';
 import { SubjectsModule } from './subjects/subjects.module';
+import { ChatController } from './chat/chat.controller';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -29,6 +31,7 @@ import { SubjectsModule } from './subjects/subjects.module';
     SeedModule,
     AssessmentsModule,
     SubjectsModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
