@@ -309,6 +309,7 @@ model Assessment {
 
 model Thread {
   uid          String    @id @default(uuid())
+  title        String
   createdBy    User      @relation(fields: [createdByUid], references: [uid])
   createdByUid String
   createdAt    DateTime  @default(now())
