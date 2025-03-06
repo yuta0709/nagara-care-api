@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { User as UserDecorator } from '../users/user.decorator';
 import { User } from '@prisma/client';
@@ -14,6 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { Authorize } from '../auth/roles.guard';
 import { UserRole } from '@prisma/client';
+import { ThreadUpdateInputDto } from './dtos/thread-update.input.dto';
 
 @ApiTags('chats')
 @Controller('chats')
@@ -72,6 +81,40 @@ export class ChatController {
     return this.chatService.getThread(uid);
   }
 
+  @Put(':uid')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'updateThread',
+    summary: 'スレッドを更新',
+  })
+  @ApiParam({
+    name: 'uid',
+    required: true,
+    description: 'スレッドのUID',
+  })
+  async updateThread(
+    @Param('uid') uid: string,
+    @Body() input: ThreadUpdateInputDto,
+  ) {
+    return this.chatService.updateThread(uid, input);
+  }
+
+  @Delete(':uid')
+  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'deleteThread',
+    summary: 'スレッドを削除',
+  })
+  @ApiParam({
+    name: 'uid',
+    required: true,
+    description: 'スレッドのUID',
+  })
+  async deleteThread(@Param('uid') uid: string) {
+    return this.chatService.deleteThread(uid);
+  }
   @Post(':uid/messages')
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')

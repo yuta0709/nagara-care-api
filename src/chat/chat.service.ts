@@ -11,6 +11,7 @@ import { MessageOutputDto } from './dtos/message.output.dto';
 import { MessageCreateInputDto } from './dtos/message-create.input.dto';
 import { ChatMessage, HumanMessage } from '@langchain/core/messages';
 import { getAiResponse } from './llm/chat';
+import { ThreadUpdateInputDto } from './dtos/thread-update.input.dto';
 @Injectable()
 export class ChatService {
   constructor(private readonly prisma: PrismaService) {}
@@ -26,6 +27,19 @@ export class ChatService {
         createdByUid: user.uid,
         title,
       },
+    });
+  }
+
+  async updateThread(uid: string, input: ThreadUpdateInputDto) {
+    return this.prisma.thread.update({
+      where: { uid },
+      data: { title: input.title },
+    });
+  }
+
+  async deleteThread(uid: string) {
+    return this.prisma.thread.delete({
+      where: { uid },
     });
   }
 

@@ -1958,6 +1958,44 @@ paths:
         - JWT-auth: []
       summary: 特定のスレッドを取得
       tags: *a12
+    put:
+      operationId: updateThread
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: スレッドのUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ThreadUpdateInputDto"
+      responses:
+        "200":
+          description: ""
+      security:
+        - JWT-auth: []
+      summary: スレッドを更新
+      tags: *a12
+    delete:
+      operationId: deleteThread
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: スレッドのUID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      security:
+        - JWT-auth: []
+      summary: スレッドを削除
+      tags: *a12
   /chats/{uid}/messages:
     post:
       operationId: createMessage
@@ -3639,6 +3677,13 @@ components:
         - createdAt
         - updatedAt
         - messages
+    ThreadUpdateInputDto:
+      type: object
+      properties:
+        title:
+          type: string
+      required:
+        - title
     MessageCreateInputDto:
       type: object
       properties: {}
