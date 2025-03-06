@@ -84,6 +84,14 @@ export class ChatService {
       throw new Error('スレッドが見つかりません');
     }
 
+    await this.prisma.message.create({
+      data: {
+        threadUid,
+        content: input.content,
+        role: MessageRole.USER,
+      },
+    });
+
     const messages = thread.messages.map((message) => {
       return new ChatMessage({
         role: message.role.toLowerCase(),
