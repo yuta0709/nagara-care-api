@@ -325,7 +325,7 @@ enum MessageRole {
 model Message {
   uid       String      @id @default(uuid())
   threadUid String
-  thread    Thread      @relation(fields: [threadUid], references: [uid])
+  thread    Thread      @relation(fields: [threadUid], references: [uid], onDelete: Cascade)
   content   String
   role      MessageRole
   createdAt DateTime    @default(now())
