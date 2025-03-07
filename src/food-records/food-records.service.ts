@@ -239,7 +239,6 @@ export class FoodRecordsService {
     const result = await this.pineconeService.vectorStore.addDocuments([
       document,
     ]);
-    console.log(result);
 
     return plainToInstance(FoodRecordDto, updatedRecord, {
       excludeExtraneousValues: true,
@@ -522,8 +521,14 @@ export class FoodRecordsService {
       record.residentUid,
       currentUser,
     );
+    const currentState = await this.prisma.foodRecord.findUnique({
+      where: { uid },
+    });
 
-    const extractedData = await extractData(record.transcription ?? '');
+    const extractedData = await extractData(
+      record.transcription ?? '',
+      currentState,
+    );
 
     return plainToInstance(FoodRecordExtractedDto, extractedData, {
       excludeExtraneousValues: true,
