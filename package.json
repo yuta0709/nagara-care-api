@@ -20,13 +20,15 @@
     "prisma:seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
-    "@langchain/core": "^0.3.40",
+    "@langchain/core": "^0.3.42",
     "@langchain/openai": "^0.4.4",
+    "@langchain/pinecone": "^0.2.0",
     "@nestjs/common": "11.0.9",
     "@nestjs/core": "11.0.9",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/platform-express": "11.0.9",
     "@nestjs/swagger": "^11.0.3",
+    "@pinecone-database/pinecone": "^5.1.1",
     "@prisma/client": "^6.3.1",
     "@types/yaml": "^1.9.6",
     "bcrypt": "^5.1.1",

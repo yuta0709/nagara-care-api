@@ -7,7 +7,7 @@ import {
 import { PrismaService } from '../prisma.service';
 import { FoodRecordCreateInputDto } from './dtos/food-record-create.input.dto';
 import { FoodRecordUpdateInputDto } from './dtos/food-record-update.input.dto';
-import { User, UserRole, MealTime } from '@prisma/client';
+import { User, UserRole, MealTime, FoodRecord } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { FoodRecordDto } from './dtos/food-record.output.dto';
 import { FoodRecordListResponseDto } from './dtos/food-record-list.output.dto';
@@ -19,10 +19,16 @@ import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { extractData } from './llm/extractor';
 import { FoodRecordExtractedDto } from './dtos/food-record-extracted.output.dto';
+import { PineconeService } from 'src/pinecone.service';
+import { formatFoodRecord } from './llm/format';
+import type { Document } from '@langchain/core/documents';
 
 @Injectable()
 export class FoodRecordsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pineconeService: PineconeService,
+  ) {}
 
   async findByResident(
     residentUid: string,
@@ -203,7 +209,37 @@ export class FoodRecordsService {
     const updatedRecord = await this.prisma.foodRecord.update({
       where: { uid },
       data: input,
+      include: {
+        resident: true,
+      },
     });
+
+    const vector = await this.pineconeService.vectorStore.similaritySearch(
+      updatedRecord.uid,
+    );
+    if (vector.length > 0) {
+      await this.pineconeService.vectorStore.delete({
+        ids: vector.map((v) => v.id),
+      });
+    }
+
+    const formattedRecord = formatFoodRecord(
+      updatedRecord,
+      updatedRecord.resident,
+    );
+    const document: Document = {
+      id: updatedRecord.uid,
+      pageContent: formattedRecord,
+      metadata: {
+        source: 'food-record',
+        uid: updatedRecord.uid,
+      },
+    };
+
+    const result = await this.pineconeService.vectorStore.addDocuments([
+      document,
+    ]);
+    console.log(result);
 
     return plainToInstance(FoodRecordDto, updatedRecord, {
       excludeExtraneousValues: true,

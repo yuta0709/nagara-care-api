@@ -13,9 +13,13 @@ import { ChatMessage, HumanMessage } from '@langchain/core/messages';
 import { getAiResponse } from './llm/chat';
 import { ThreadUpdateInputDto } from './dtos/thread-update.input.dto';
 import { ThreadCreateOutputDto } from './dtos/thread-create.output.dto';
+import { PineconeService } from 'src/pinecone.service';
 @Injectable()
 export class ChatService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pineconeService: PineconeService,
+  ) {}
 
   async createThread(user: User) {
     const title = new Date().toLocaleDateString('ja-JP', {
@@ -123,10 +127,25 @@ export class ChatService {
         content: message.content,
       });
     });
+    const query = `
+    今日は${new Date().toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })}です。
+    ${input.content}
+    
+    `;
+
+    const retrievedDocs =
+      await this.pineconeService.vectorStore.similaritySearch(query);
+    const docsContent = retrievedDocs.map((doc) => doc.pageContent).join('\n');
+
+    const prompt = `[Context]\n${docsContent}\n\n[User]\n${input.content}\n\n`;
 
     const userMessage = new ChatMessage({
       role: 'user',
-      content: input.content,
+      content: prompt,
     });
     messages.push(userMessage);
 
