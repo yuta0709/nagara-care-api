@@ -13,10 +13,15 @@ import { DailyRecordDto } from './dtos/daily-record.output.dto';
 import { DailyRecordListResponseDto } from './dtos/daily-record-list.output.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';
-
+import { PineconeService } from 'src/pinecone.service';
+import { formatDailyRecord } from './llm/format';
+import type { Document } from '@langchain/core/documents';
 @Injectable()
 export class DailyRecordsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pineconeService: PineconeService,
+  ) {}
 
   async findByResident(
     residentUid: string,
@@ -125,6 +130,26 @@ export class DailyRecordsService {
         },
       },
     });
+
+    const vectors = await this.pineconeService.vectorStore.similaritySearch(
+      record.uid,
+    );
+    if (vectors.length > 0) {
+      await this.pineconeService.vectorStore.delete({
+        ids: vectors.map((v) => v.id),
+      });
+    }
+    const formattedRecord = formatDailyRecord(record, resident);
+    const document: Document = {
+      id: record.uid,
+      pageContent: formattedRecord,
+      metadata: {
+        source: 'daily-record',
+        uid: record.uid,
+      },
+    };
+
+    await this.pineconeService.vectorStore.addDocuments([document]);
 
     return plainToInstance(DailyRecordDto, record, {
       excludeExtraneousValues: true,

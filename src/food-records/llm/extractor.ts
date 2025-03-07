@@ -1,7 +1,6 @@
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { ChatOpenAI } from '@langchain/openai';
 import { foodRecordSchema } from './schema';
-import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { FoodRecord } from '@prisma/client';
 
 export async function extractData(
