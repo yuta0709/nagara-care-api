@@ -146,6 +146,7 @@ export class DailyRecordsService {
       metadata: {
         source: 'daily-record',
         uid: record.uid,
+        tenantUid: record.tenantUid,
       },
     };
 

@@ -138,7 +138,9 @@ export class ChatService {
     `;
 
     const retrievedDocs =
-      await this.pineconeService.vectorStore.similaritySearch(query);
+      await this.pineconeService.vectorStore.similaritySearch(query, 10, {
+        tenantUid: user.tenantUid,
+      });
     const docsContent = retrievedDocs.map((doc) => doc.pageContent).join('\n');
 
     const prompt = `[Context]\n${docsContent}\n\n[User]\n${input.content}\n\n`;

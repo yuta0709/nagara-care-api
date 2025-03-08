@@ -233,6 +233,7 @@ export class FoodRecordsService {
       metadata: {
         source: 'food-record',
         uid: updatedRecord.uid,
+        tenantUid: updatedRecord.tenantUid,
       },
     };
 
