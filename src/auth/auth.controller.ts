@@ -57,6 +57,8 @@ export class AuthController {
     type: UserDto,
   })
   getProfile(@User() user: PrismaUser): UserDto {
-    return plainToInstance(UserDto, user);
+    return plainToInstance(UserDto, user, {
+      excludeExtraneousValues: true,
+    });
   }
 }
