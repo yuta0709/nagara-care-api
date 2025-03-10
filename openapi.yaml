@@ -2023,6 +2023,216 @@ paths:
         - JWT-auth: []
       summary: メッセージを作成
       tags: *a12
+  /qa/sessions:
+    post:
+      operationId: createQaSession
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateQaSessionDto"
+      responses:
+        "201":
+          description: QAセッションが作成されました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QaSessionOutputDto"
+      security: &a13
+        - JWT-auth: []
+      summary: QAセッションを作成する
+      tags: &a14
+        - qa
+    get:
+      operationId: findQaSessionsByUser
+      parameters: []
+      responses:
+        "200":
+          description: QAセッション一覧が取得されました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QaSessionListOutputDto"
+      security: *a13
+      summary: ユーザーに紐づくQAセッション一覧を取得する
+      tags: *a14
+  /qa/sessions/{uid}:
+    get:
+      operationId: findQaSession
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: QAセッションID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: QAセッションが取得されました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QaSessionOutputDto"
+        "404":
+          description: QAセッションが見つかりません
+      security: *a13
+      summary: QAセッションを取得する
+      tags: *a14
+    delete:
+      operationId: deleteQaSession
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: QAセッションID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: QAセッションが削除されました
+        "404":
+          description: QAセッションが見つかりません
+      security: *a13
+      summary: QAセッションを削除する
+      tags: *a14
+  /qa/question-answers:
+    post:
+      operationId: addQuestionAnswer
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateQuestionAnswerDto"
+      responses:
+        "201":
+          description: 質問回答が作成されました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionAnswerOutputDto"
+      security: *a13
+      summary: QAセッションに質問回答を追加する
+      tags: *a14
+  /qa/question-answers/{uid}:
+    put:
+      operationId: updateQuestionAnswer
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 質問回答ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateQuestionAnswerDto"
+      responses:
+        "200":
+          description: 質問回答が更新されました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionAnswerOutputDto"
+        "404":
+          description: 質問回答が見つかりません
+      security: *a13
+      summary: 質問回答を更新する
+      tags: *a14
+    delete:
+      operationId: deleteQuestionAnswer
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 質問回答ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 質問回答が削除されました
+        "404":
+          description: 質問回答が見つかりません
+      security: *a13
+      summary: 質問回答を削除する
+      tags: *a14
+  /qa/sessions/{uid}/upsert-question-answers:
+    post:
+      operationId: upsertQuestionAnswers
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertQuestionAnswersDto"
+      responses:
+        "200":
+          description: 質問回答が一括更新されました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QaSessionOutputDto"
+        "404":
+          description: QAセッションが見つかりません
+      security: *a13
+      summary: QAセッションに紐づく質問回答を一括更新（置き換え）する
+      tags: *a14
+  /qa/sessions/{uid}/extract:
+    get:
+      operationId: extractQaPairsFromTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: QAセッションID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 質問と回答のペアが抽出されました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExtractQaPairsOutputDto"
+      security: *a13
+      summary: 文字起こしから質問と回答のペアを抽出する
+      tags: *a14
+  /qa/sessions/{uid}/transcription:
+    put:
+      operationId: updateTranscription
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: QAセッションID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptionInputDto"
+      responses:
+        "200":
+          description: 音声ファイルの文字起こしが更新されました
+        "404":
+          description: QAセッションが見つかりません
+      security: *a13
+      summary: QAセッションの音声ファイルの文字起こしを更新する
+      tags: *a14
 info:
   title: Nagara Care API
   description: ""
@@ -2666,7 +2876,6 @@ components:
       properties:
         transcription:
           type: string
-          description: 文字起こしテキスト
       required:
         - transcription
     FoodRecordExtractedDto:
@@ -3712,3 +3921,160 @@ components:
     MessageCreateInputDto:
       type: object
       properties: {}
+    CreateQaSessionDto:
+      type: object
+      properties:
+        title:
+          type: string
+          description: タイトル
+      required:
+        - title
+    QuestionAnswerOutputDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: 質問回答UID
+        question:
+          type: string
+          description: 質問
+        answer:
+          type: string
+          description: 回答
+        createdAt:
+          format: date-time
+          type: string
+          description: 作成日時
+        updatedAt:
+          format: date-time
+          type: string
+          description: 更新日時
+      required:
+        - uid
+        - question
+        - answer
+        - createdAt
+        - updatedAt
+    QaSessionOutputDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: QAセッションUID
+        userUid:
+          type: string
+          description: ユーザーUID
+        questionAnswers:
+          description: 質問回答
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionAnswerOutputDto"
+        createdAt:
+          format: date-time
+          type: string
+          description: 作成日時
+        updatedAt:
+          format: date-time
+          type: string
+          description: 更新日時
+        transcription:
+          type: string
+          description: 文字起こし
+      required:
+        - uid
+        - userUid
+        - questionAnswers
+        - createdAt
+        - updatedAt
+        - transcription
+    QaSessionListOutputDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/QaSessionOutputDto"
+        total:
+          type: number
+          description: 総数
+      required:
+        - items
+        - total
+    CreateQuestionAnswerDto:
+      type: object
+      properties:
+        qaSessionUid:
+          type: string
+          description: QAセッションID
+        question:
+          type: string
+          description: 質問内容
+        answer:
+          type: string
+          description: 回答内容
+      required:
+        - qaSessionUid
+        - question
+        - answer
+    UpdateQuestionAnswerDto:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: 質問回答ID
+          example: 123e4567-e89b-12d3-a456-426614174000
+        question:
+          type: string
+          description: 質問内容
+          example: 今日の体調はいかがですか？
+        answer:
+          type: string
+          description: 回答内容
+          example: 調子が良いです。
+      required:
+        - uid
+        - question
+        - answer
+    QuestionAnswerItem:
+      type: object
+      properties:
+        question:
+          type: string
+          description: 質問内容
+          example: 今日の体調はいかがですか？
+        answer:
+          type: string
+          description: 回答内容
+          example: 調子が良いです。
+      required:
+        - question
+        - answer
+    UpsertQuestionAnswersDto:
+      type: object
+      properties:
+        questionAnswers:
+          description: 質問と回答のリスト
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionAnswerItem"
+      required:
+        - questionAnswers
+    ExtractedQaPair:
+      type: object
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+      required:
+        - question
+        - answer
+    ExtractQaPairsOutputDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExtractedQaPair"
+      required:
+        - data

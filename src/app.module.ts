@@ -14,8 +14,8 @@ import { DailyRecordsModule } from './daily-records/daily-records.module';
 import { SeedModule } from './seed/seed.module';
 import { AssessmentsModule } from './assessments/assessments.module';
 import { SubjectsModule } from './subjects/subjects.module';
-import { ChatController } from './chat/chat.controller';
 import { ChatModule } from './chat/chat.module';
+import { QaModule } from './qa/qa.module';
 
 @Module({
   imports: [
@@ -32,6 +32,7 @@ import { ChatModule } from './chat/chat.module';
     AssessmentsModule,
     SubjectsModule,
     ChatModule,
+    QaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

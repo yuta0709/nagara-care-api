@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -79,6 +79,7 @@ model User {
   dailyRecords       DailyRecord[]
   assessments        Assessment[]
   threads            Thread[]
+  qaSessions         QaSession[]
 }
 
 model Resident {
@@ -331,4 +332,25 @@ model Message {
   role      MessageRole
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+}
+
+model QaSession {
+  uid             String           @id @default(uuid())
+  title           String
+  userUid         String
+  user            User             @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  questionAnswers QuestionAnswer[]
+  transcription   String?
+}
+
+model QuestionAnswer {
+  uid          String    @id @default(uuid())
+  qaSessionUid String
+  qaSession    QaSession @relation(fields: [qaSessionUid], references: [uid], onDelete: Cascade)
+  question     String
+  answer       String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
