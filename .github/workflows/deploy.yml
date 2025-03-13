@@ -1,0 +1,101 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: ${{ secrets.REGION }}
+  CLOUD_RUN_SERVICE_NAME: ${{ secrets.CLOUD_RUN_SERVICE_NAME_DEV }}
+  WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+  IMAGE: ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REGISTRY_REPOSITORY_ID }}/nagara-care-api
+  PORT: 8080
+  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  DIRECT_URL: ${{ secrets.DIRECT_URL }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  LANGSMITH_API_KEY: ${{ secrets.LANGSMITH_API_KEY }}
+  LANGSMITH_ENDPOINT: ${{ secrets.LANGSMITH_ENDPOINT }}
+  LANGSMITH_PROJECT: ${{ secrets.LANGSMITH_PROJECT }}
+  LANGSMITH_TRACING: ${{ secrets.LANGSMITH_TRACING }}
+  NODE_ENV: ${{ secrets.NODE_ENV }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+  PINECONE_INDEX_NAME: ${{ secrets.PINECONE_INDEX_NAME }}
+  SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT }}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for gcloud
+        run: |
+          gcloud auth configure-docker "${{ env.REGION }}-docker.pkg.dev" --quiet
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set metadata for the image
+        id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=sha,format=short
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Prepare environment variables file
+        run: |
+          echo "DATABASE_URL: $DATABASE_URL" > .env.yaml
+          echo "DIRECT_URL: $DIRECT_URL" >> .env.yaml
+          echo "ADMIN_PASSWORD: $ADMIN_PASSWORD" >> .env.yaml
+          echo "JWT_SECRET: $JWT_SECRET" >> .env.yaml
+          echo "LANGSMITH_API_KEY: $LANGSMITH_API_KEY" >> .env.yaml
+          echo "LANGSMITH_ENDPOINT: $LANGSMITH_ENDPOINT" >> .env.yaml
+          echo "LANGSMITH_PROJECT: $LANGSMITH_PROJECT" >> .env.yaml
+          echo "NODE_ENV: $NODE_ENV" >> .env.yaml
+          echo "OPENAI_API_KEY: $OPENAI_API_KEY" >> .env.yaml
+          echo "PINECONE_API_KEY: $PINECONE_API_KEY" >> .env.yaml
+          echo "PINECONE_INDEX_NAME: $PINECONE_INDEX_NAME" >> .env.yaml
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy "$CLOUD_RUN_SERVICE_NAME" \
+            --image "$IMAGE" \
+            --port "$PORT" \
+            --project "$GCP_PROJECT_ID" \
+            --region "$REGION" \
+            --platform managed \
+            --env-vars-file "./.env.yaml" \
+            --quiet
