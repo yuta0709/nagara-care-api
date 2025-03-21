@@ -16,6 +16,7 @@ import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { PineconeService } from 'src/pinecone.service';
 import { formatDailyRecord } from './llm/format';
 import type { Document } from '@langchain/core/documents';
+import { DailyRecordExtractedDto } from './dtos/daily-record-extracted.output.dto';
 @Injectable()
 export class DailyRecordsService {
   constructor(
@@ -365,6 +366,28 @@ export class DailyRecordsService {
       data: {
         transcription: null,
       },
+    });
+  }
+
+  async extractDailyRecord(
+    uid: string,
+    currentUser: User,
+  ): Promise<DailyRecordExtractedDto> {
+    const record = await this.prisma.dailyRecord.findUnique({
+      where: { uid },
+    });
+    if (!record) {
+      throw new NotFoundException(`Daily record with uid ${uid} not found`);
+    }
+
+    if (record.tenantUid !== currentUser.tenantUid) {
+      throw new UnauthorizedException(
+        '他のテナントの利用者の記録を取得する権限がありません',
+      );
+    }
+
+    return plainToInstance(DailyRecordExtractedDto, record, {
+      excludeExtraneousValues: true,
     });
   }
 }

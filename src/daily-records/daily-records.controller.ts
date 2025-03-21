@@ -26,6 +26,7 @@ import { DailyRecordListResponseDto } from './dtos/daily-record-list.output.dto'
 import { DailyRecordDto } from './dtos/daily-record.output.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';
+import { DailyRecordExtractedDto } from './dtos/daily-record-extracted.output.dto';
 
 @ApiTags('daily-records')
 @Controller('residents/:residentUid/daily-records')
@@ -220,5 +221,25 @@ export class DailyRecordsController {
     @UserDecorator() user: User,
   ): Promise<void> {
     return this.dailyRecordsService.deleteTranscription(uid, user);
+  }
+
+  @Get(':uid/extract')
+  @Authorize([UserRole.CAREGIVER, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'extractDailyRecord',
+    summary: '日常記録を抽出',
+  })
+  @ApiParam({ name: 'uid', description: '日常記録UID' })
+  @ApiResponse({
+    status: 200,
+    description: '日常記録の抽出に成功',
+    type: DailyRecordExtractedDto,
+  })
+  extract(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<DailyRecordExtractedDto> {
+    return this.dailyRecordsService.extractDailyRecord(uid, user);
   }
 }
