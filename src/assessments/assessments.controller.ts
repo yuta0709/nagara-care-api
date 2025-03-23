@@ -23,10 +23,10 @@ import {
 } from '@nestjs/swagger';
 import { User as UserDecorator } from '../users/user.decorator';
 import { User } from '@prisma/client';
-import { AssessmentDto } from './dtos/assessment.output.dto';
+import { AssessmentExtractDto } from './dtos/assessment-extract.output.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
+import { AssessmentDto } from './dtos/assessment.output.dto';
 import { AssessmentListResponseDto } from './dtos/assessment-list.output.dto';
-import { summarize } from './llm/summarize';
 
 @ApiTags('assessments')
 @Controller()
@@ -133,7 +133,7 @@ export class AssessmentsController {
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    operationId: 'getTranscription',
+    operationId: 'getAssessmentTranscription',
     summary: 'アセスメントの文字起こしを取得',
   })
   @ApiParam({ name: 'uid', description: 'アセスメントUID' })
@@ -153,7 +153,7 @@ export class AssessmentsController {
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    operationId: 'appendTranscription',
+    operationId: 'appendAssessmentTranscription',
     summary: 'アセスメントの文字起こしを追記',
   })
   @ApiParam({ name: 'uid', description: 'アセスメントUID' })
@@ -174,7 +174,7 @@ export class AssessmentsController {
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    operationId: 'updateTranscription',
+    operationId: 'updateAssessmentTranscription',
     summary: 'アセスメントの文字起こしを置換',
   })
   @ApiParam({ name: 'uid', description: 'アセスメントUID' })
@@ -195,7 +195,7 @@ export class AssessmentsController {
   @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    operationId: 'deleteTranscription',
+    operationId: 'deleteAssessmentTranscription',
     summary: 'アセスメントの文字起こしを削除',
   })
   @ApiParam({ name: 'uid', description: 'アセスメントUID' })
@@ -228,5 +228,25 @@ export class AssessmentsController {
     @UserDecorator() user: User,
   ): Promise<string> {
     return this.assessmentsService.summarize(uid, user);
+  }
+
+  @Post('assessments/:uid/extract')
+  @Authorize([UserRole.CAREGIVER, UserRole.TENANT_ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    operationId: 'extractAssessment',
+    summary: 'アセスメントの内容を抽出',
+  })
+  @ApiParam({ name: 'uid', description: 'アセスメントUID' })
+  @ApiResponse({
+    status: 200,
+    description: 'アセスメントの内容抽出に成功',
+    type: AssessmentExtractDto,
+  })
+  extract(
+    @Param('uid') uid: string,
+    @UserDecorator() user: User,
+  ): Promise<AssessmentExtractDto> {
+    return this.assessmentsService.extract(uid, user);
   }
 }

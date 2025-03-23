@@ -20,6 +20,7 @@ import { plainToInstance } from 'class-transformer';
 import { AssessmentDto } from './dtos/assessment.output.dto';
 import { AssessmentListResponseDto } from './dtos/assessment-list.output.dto';
 import { summarize } from './llm/summarize';
+import { extractData } from './llm/extractor';
 
 @Injectable()
 export class AssessmentsService {
@@ -376,5 +377,29 @@ export class AssessmentsService {
     }
 
     return (await summarize(assessment.transcription)).toString();
+  }
+
+  async extract(uid: string, currentUser: User): Promise<AssessmentDto> {
+    const assessment = await this.prisma.assessment.findUnique({
+      where: { uid },
+    });
+
+    if (!assessment) {
+      throw new NotFoundException(
+        `アセスメントが見つかりません（UID: ${uid}）`,
+      );
+    }
+
+    // TENANT_ADMINは自身のテナントのアセスメントのみ抽出可能
+    if (assessment.tenantUid !== currentUser.tenantUid) {
+      throw new UnauthorizedException(
+        '他のテナントのアセスメントを抽出する権限がありません',
+      );
+    }
+
+    const result = await extractData(assessment.transcription, assessment);
+    return plainToInstance(AssessmentDto, result, {
+      excludeExtraneousValues: true,
+    });
   }
 }

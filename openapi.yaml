@@ -1337,6 +1337,32 @@ paths:
         - JWT-auth: []
       summary: 日常記録の文字起こしを削除
       tags: *a8
+  /residents/{residentUid}/daily-records/{uid}/extract:
+    get:
+      operationId: extractDailyRecord
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: 日常記録UID
+          schema:
+            type: string
+        - name: residentUid
+          required: true
+          in: path
+          description: 利用者UID
+          schema: {}
+      responses:
+        "200":
+          description: 日常記録の抽出に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyRecordExtractedDto"
+      security:
+        - JWT-auth: []
+      summary: 日常記録を抽出
+      tags: *a8
   /residents/{residentUid}/beverage-records:
     get:
       operationId: getBeverageRecords
@@ -1674,7 +1700,7 @@ paths:
       tags: *a10
   /assessments/{uid}/transcription:
     get:
-      operationId: getTranscription
+      operationId: getAssessmentTranscription
       parameters:
         - name: uid
           required: true
@@ -1694,7 +1720,7 @@ paths:
       summary: アセスメントの文字起こしを取得
       tags: *a10
     patch:
-      operationId: appendTranscription
+      operationId: appendAssessmentTranscription
       parameters:
         - name: uid
           required: true
@@ -1720,7 +1746,7 @@ paths:
       summary: アセスメントの文字起こしを追記
       tags: *a10
     put:
-      operationId: updateTranscription
+      operationId: updateAssessmentTranscription
       parameters:
         - name: uid
           required: true
@@ -1746,7 +1772,7 @@ paths:
       summary: アセスメントの文字起こしを置換
       tags: *a10
     delete:
-      operationId: deleteTranscription
+      operationId: deleteAssessmentTranscription
       parameters:
         - name: uid
           required: true
@@ -1781,6 +1807,27 @@ paths:
       security:
         - JWT-auth: []
       summary: アセスメントの要約を作成
+      tags: *a10
+  /assessments/{uid}/extract:
+    post:
+      operationId: extractAssessment
+      parameters:
+        - name: uid
+          required: true
+          in: path
+          description: アセスメントUID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: アセスメントの内容抽出に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentExtractDto"
+      security:
+        - JWT-auth: []
+      summary: アセスメントの内容を抽出
       tags: *a10
   /tenants/{tenantUid}/subjects:
     get:
@@ -3278,6 +3325,16 @@ components:
           example: NORMAL
       required:
         - recordedAt
+    DailyRecordExtractedDto:
+      type: object
+      properties:
+        notes:
+          type: string
+        dailyStatus:
+          type: string
+      required:
+        - notes
+        - dailyStatus
     BeverageRecordDto:
       type: object
       properties:
@@ -3719,6 +3776,127 @@ components:
         personalTraits:
           type: string
           description: 個人因子
+    AssessmentExtractDto:
+      type: object
+      properties:
+        familyInfo:
+          type: string
+          description: 家族構成
+        careLevel:
+          type: string
+          description: 要介護状態区分
+          enum:
+            - NEEDS_CARE_1
+            - NEEDS_CARE_2
+            - NEEDS_CARE_3
+            - NEEDS_CARE_4
+            - NEEDS_CARE_5
+        physicalIndependence:
+          type: string
+          description: 障害高齢者の日常生活自立度判定基準
+          enum:
+            - INDEPENDENT
+            - J1
+            - J2
+            - A1
+            - A2
+            - B1
+            - B2
+            - C1
+            - C2
+        cognitiveIndependence:
+          type: string
+          description: 認知症高齢者の日常生活自立度判定基準
+          enum:
+            - INDEPENDENT
+            - I
+            - IIa
+            - IIb
+            - IIIa
+            - IIIb
+            - IV
+            - M
+        medicalHistory:
+          type: string
+          description: 既往症
+        medications:
+          type: string
+          description: 服用薬剤
+        formalServices:
+          type: string
+          description: 使用しているフォーマルサービス
+        informalSupport:
+          type: string
+          description: 使用しているインフォーマルサービス
+        consultationBackground:
+          type: string
+          description: 相談に至った経緯
+        lifeHistory:
+          type: string
+          description: 生活史
+        complaints:
+          type: string
+          description: 主訴
+        healthNotes:
+          type: string
+          description: 健康状態
+        mentalStatus:
+          type: string
+          description: 精神状態
+        physicalStatus:
+          type: string
+          description: 身体状態
+        adlStatus:
+          type: string
+          description: ADL
+        communication:
+          type: string
+          description: コミュニケーション
+        dailyLife:
+          type: string
+          description: 日常生活
+        instrumentalADL:
+          type: string
+          description: IADL
+        participation:
+          type: string
+          description: 参加・参加制約
+        environment:
+          type: string
+          description: 環境
+        livingSituation:
+          type: string
+          description: 生活状況
+        legalSupport:
+          type: string
+          description: 制度的環境
+        personalTraits:
+          type: string
+          description: 個人因子
+      required:
+        - familyInfo
+        - careLevel
+        - physicalIndependence
+        - cognitiveIndependence
+        - medicalHistory
+        - medications
+        - formalServices
+        - informalSupport
+        - consultationBackground
+        - lifeHistory
+        - complaints
+        - healthNotes
+        - mentalStatus
+        - physicalStatus
+        - adlStatus
+        - communication
+        - dailyLife
+        - instrumentalADL
+        - participation
+        - environment
+        - livingSituation
+        - legalSupport
+        - personalTraits
     SubjectListResponseDto:
       type: object
       properties:
