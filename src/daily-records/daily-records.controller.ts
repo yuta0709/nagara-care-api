@@ -231,6 +231,7 @@ export class DailyRecordsController {
     summary: '日常記録を抽出',
   })
   @ApiParam({ name: 'uid', description: '日常記録UID' })
+  @ApiParam({ name: 'residentUid', description: '利用者UID' })
   @ApiResponse({
     status: 200,
     description: '日常記録の抽出に成功',
