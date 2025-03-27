@@ -28,6 +28,8 @@ import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { BeverageRecordExtractedDto } from './dtos/beverage-record-extracted.output.dto';
 
+@Authorize([UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+@ApiBearerAuth('JWT-auth')
 @ApiTags('beverage-records')
 @Controller('residents/:residentUid/beverage-records')
 export class BeverageRecordsController {
@@ -36,8 +38,6 @@ export class BeverageRecordsController {
   ) {}
 
   @Get()
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getBeverageRecords',
     summary: '利用者の飲料記録一覧を取得',
@@ -56,8 +56,6 @@ export class BeverageRecordsController {
   }
 
   @Post()
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'createBeverageRecord',
     summary: '飲料記録を作成',
@@ -78,8 +76,6 @@ export class BeverageRecordsController {
   }
 
   @Patch(':uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'updateBeverageRecord',
     summary: '飲料記録を更新',
@@ -100,8 +96,6 @@ export class BeverageRecordsController {
   }
 
   @Delete(':uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'deleteBeverageRecord',
     summary: '飲料記録を削除',
@@ -120,8 +114,6 @@ export class BeverageRecordsController {
   }
 
   @Get(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getBeverageRecordTranscription',
     summary: '飲料記録の文字起こしを取得',
@@ -141,8 +133,6 @@ export class BeverageRecordsController {
   }
 
   @Patch(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'appendBeverageRecordTranscription',
     summary: '飲料記録の文字起こしを追記',
@@ -163,8 +153,6 @@ export class BeverageRecordsController {
   }
 
   @Put(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'updateBeverageRecordTranscription',
     summary: '飲料記録の文字起こしを置換',
@@ -185,8 +173,6 @@ export class BeverageRecordsController {
   }
 
   @Delete(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'deleteBeverageRecordTranscription',
     summary: '飲料記録の文字起こしを削除',
@@ -205,8 +191,6 @@ export class BeverageRecordsController {
   }
 
   @Post(':uid/extract')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'extractBeverageRecord',
     summary: '飲み物摂取記録から情報を抽出',

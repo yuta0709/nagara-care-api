@@ -15,6 +15,7 @@ import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { extractData } from './llm/extractor';
 import { BeverageRecordExtractedDto } from './dtos/beverage-record-extracted.output.dto';
+import { checkPermission } from 'src/common/permission';
 
 @Injectable()
 export class BeverageRecordsService {
@@ -24,22 +25,11 @@ export class BeverageRecordsService {
     residentUid: string,
     currentUser: User,
   ): Promise<BeverageRecordListResponseDto> {
-    const resident = await this.prisma.resident.findUnique({
+    const resident = await this.prisma.resident.findUniqueOrThrow({
       where: { uid: residentUid },
     });
-    if (!resident) {
-      throw new NotFoundException(`Resident with uid ${residentUid} not found`);
-    }
 
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ取得可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      resident.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を取得する権限がありません',
-      );
-    }
+    checkPermission(currentUser, resident.tenantUid);
 
     const [items, total] = await Promise.all([
       this.prisma.beverageRecord.findMany({
@@ -63,24 +53,11 @@ export class BeverageRecordsService {
     input: BeverageRecordCreateInputDto,
     currentUser: User,
   ): Promise<BeverageRecordDto> {
-    const resident = await this.prisma.resident.findUnique({
+    const resident = await this.prisma.resident.findUniqueOrThrow({
       where: { uid: input.residentUid },
     });
-    if (!resident) {
-      throw new NotFoundException(
-        `Resident with uid ${input.residentUid} not found`,
-      );
-    }
 
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ作成可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      resident.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を作成する権限がありません',
-      );
-    }
+    checkPermission(currentUser, resident.tenantUid);
 
     const record = await this.prisma.beverageRecord.create({
       data: {
@@ -116,22 +93,11 @@ export class BeverageRecordsService {
     input: BeverageRecordUpdateInputDto,
     currentUser: User,
   ): Promise<BeverageRecordDto> {
-    const record = await this.prisma.beverageRecord.findUnique({
+    const record = await this.prisma.beverageRecord.findUniqueOrThrow({
       where: { uid },
     });
-    if (!record) {
-      throw new NotFoundException(`Beverage record with uid ${uid} not found`);
-    }
 
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ更新可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      record.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を更新する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     // CAREGIVERは自身が作成した記録のみ更新可能
     if (
@@ -164,22 +130,11 @@ export class BeverageRecordsService {
   }
 
   async delete(uid: string, currentUser: User): Promise<void> {
-    const record = await this.prisma.beverageRecord.findUnique({
+    const record = await this.prisma.beverageRecord.findUniqueOrThrow({
       where: { uid },
     });
-    if (!record) {
-      throw new NotFoundException(`Beverage record with uid ${uid} not found`);
-    }
 
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ削除可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      record.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を削除する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     // CAREGIVERは記録を削除不可
     if (currentUser.role === UserRole.CAREGIVER) {
@@ -194,21 +149,12 @@ export class BeverageRecordsService {
     uid: string,
     currentUser: User,
   ): Promise<TranscriptionDto> {
-    const record = await this.prisma.beverageRecord.findUnique({
+    const record = await this.prisma.beverageRecord.findUniqueOrThrow({
       where: { uid },
       select: { transcription: true, tenantUid: true, residentUid: true },
     });
 
-    if (!record) {
-      throw new NotFoundException(`飲料記録が見つかりません（UID: ${uid}）`);
-    }
-
-    // 権限チェック
-    await this.checkPermission(
-      record.tenantUid,
-      record.residentUid,
-      currentUser,
-    );
+    checkPermission(currentUser, record.tenantUid);
 
     return plainToInstance(TranscriptionDto, record, {
       excludeExtraneousValues: true,
@@ -220,21 +166,12 @@ export class BeverageRecordsService {
     input: TranscriptionInputDto,
     currentUser: User,
   ): Promise<TranscriptionDto> {
-    const record = await this.prisma.beverageRecord.findUnique({
+    const record = await this.prisma.beverageRecord.findUniqueOrThrow({
       where: { uid },
       select: { transcription: true, tenantUid: true, residentUid: true },
     });
 
-    if (!record) {
-      throw new NotFoundException(`飲料記録が見つかりません（UID: ${uid}）`);
-    }
-
-    // 権限チェック
-    await this.checkPermission(
-      record.tenantUid,
-      record.residentUid,
-      currentUser,
-    );
+    checkPermission(currentUser, record.tenantUid);
 
     const updatedRecord = await this.prisma.beverageRecord.update({
       where: { uid },
@@ -256,21 +193,12 @@ export class BeverageRecordsService {
     input: TranscriptionInputDto,
     currentUser: User,
   ): Promise<TranscriptionDto> {
-    const record = await this.prisma.beverageRecord.findUnique({
+    const record = await this.prisma.beverageRecord.findUniqueOrThrow({
       where: { uid },
       select: { tenantUid: true, residentUid: true },
     });
 
-    if (!record) {
-      throw new NotFoundException(`飲料記録が見つかりません（UID: ${uid}）`);
-    }
-
-    // 権限チェック
-    await this.checkPermission(
-      record.tenantUid,
-      record.residentUid,
-      currentUser,
-    );
+    checkPermission(currentUser, record.tenantUid);
 
     const updatedRecord = await this.prisma.beverageRecord.update({
       where: { uid },
@@ -286,21 +214,12 @@ export class BeverageRecordsService {
   }
 
   async deleteTranscription(uid: string, currentUser: User): Promise<void> {
-    const record = await this.prisma.beverageRecord.findUnique({
+    const record = await this.prisma.beverageRecord.findUniqueOrThrow({
       where: { uid },
       select: { tenantUid: true, residentUid: true },
     });
 
-    if (!record) {
-      throw new NotFoundException(`飲料記録が見つかりません（UID: ${uid}）`);
-    }
-
-    // 権限チェック
-    await this.checkPermission(
-      record.tenantUid,
-      record.residentUid,
-      currentUser,
-    );
+    checkPermission(currentUser, record.tenantUid);
 
     await this.prisma.beverageRecord.update({
       where: { uid },
@@ -314,27 +233,15 @@ export class BeverageRecordsService {
     uid: string,
     currentUser: User,
   ): Promise<BeverageRecordExtractedDto> {
-    const record = await this.prisma.beverageRecord.findUnique({
+    const record = await this.prisma.beverageRecord.findUniqueOrThrow({
       where: { uid },
     });
 
-    if (!record) {
-      throw new NotFoundException(`Beverage record with uid ${uid} not found`);
-    }
-
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ取得可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      record.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を取得する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     // 文字起こしデータがない場合はエラー
     if (!record.transcription) {
-      throw new BadRequestException('文字起こしデータが存在しません');
+      throw new NotFoundException('文字起こしデータが存在しません');
     }
 
     // LLMを使用してデータを抽出
@@ -343,24 +250,5 @@ export class BeverageRecordsService {
     return plainToInstance(BeverageRecordExtractedDto, extracted, {
       excludeExtraneousValues: true,
     });
-  }
-
-  // 権限チェック用のヘルパーメソッド
-  private async checkPermission(
-    tenantUid: string | null,
-    residentUid: string | null,
-    currentUser: User,
-  ): Promise<void> {
-    // GLOBAL_ADMINはすべての記録にアクセス可能
-    if (currentUser.role === UserRole.GLOBAL_ADMIN) {
-      return;
-    }
-
-    // TENANT_ADMINとCAREGIVERは自身のテナントの記録のみアクセス可能
-    if (tenantUid !== currentUser.tenantUid) {
-      throw new UnauthorizedException(
-        '他のテナントの記録にアクセスする権限がありません',
-      );
-    }
   }
 }
