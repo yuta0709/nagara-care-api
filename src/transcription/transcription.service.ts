@@ -40,7 +40,7 @@ export class TranscriptionService {
       );
 
       const transcription = await client.audio.transcriptions.create({
-        model: 'whisper-1',
+        model: 'gpt-4o-mini-transcribe',
         file: new File([file], 'audio.wav', { type: 'audio/wav' }),
       });
 
