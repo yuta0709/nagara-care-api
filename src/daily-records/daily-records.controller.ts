@@ -28,14 +28,14 @@ import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { DailyRecordExtractedDto } from './dtos/daily-record-extracted.output.dto';
 
+@Authorize([UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+@ApiBearerAuth('JWT-auth')
 @ApiTags('daily-records')
 @Controller('residents/:residentUid/daily-records')
 export class DailyRecordsController {
   constructor(private readonly dailyRecordsService: DailyRecordsService) {}
 
   @Get()
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getDailyRecords',
     summary: '利用者の日常記録一覧を取得',
@@ -54,8 +54,6 @@ export class DailyRecordsController {
   }
 
   @Get(':uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getDailyRecord',
     summary: '個別の日常記録を取得',
@@ -75,8 +73,6 @@ export class DailyRecordsController {
   }
 
   @Post()
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'createDailyRecord',
     summary: '日常記録を作成',
@@ -97,8 +93,6 @@ export class DailyRecordsController {
   }
 
   @Patch(':uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'updateDailyRecord',
     summary: '日常記録を更新',
@@ -119,8 +113,6 @@ export class DailyRecordsController {
   }
 
   @Delete(':uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'deleteDailyRecord',
     summary: '日常記録を削除',
@@ -139,8 +131,6 @@ export class DailyRecordsController {
   }
 
   @Get(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getDailyRecordTranscription',
     summary: '日常記録の文字起こしを取得',
@@ -160,8 +150,6 @@ export class DailyRecordsController {
   }
 
   @Patch(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'appendDailyRecordTranscription',
     summary: '日常記録の文字起こしを追記',
@@ -182,8 +170,6 @@ export class DailyRecordsController {
   }
 
   @Put(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'updateDailyRecordTranscription',
     summary: '日常記録の文字起こしを置換',
@@ -204,8 +190,6 @@ export class DailyRecordsController {
   }
 
   @Delete(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'deleteDailyRecordTranscription',
     summary: '日常記録の文字起こしを削除',
@@ -224,8 +208,6 @@ export class DailyRecordsController {
   }
 
   @Get(':uid/extract')
-  @Authorize([UserRole.CAREGIVER, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'extractDailyRecord',
     summary: '日常記録を抽出',
