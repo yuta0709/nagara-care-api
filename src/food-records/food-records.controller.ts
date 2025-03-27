@@ -31,14 +31,14 @@ import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { FoodRecordExtractedDto } from './dtos/food-record-extracted.output.dto';
 
+@Authorize([UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+@ApiBearerAuth('JWT-auth')
 @ApiTags('food-records')
 @Controller('residents/:residentUid/food-records')
 export class FoodRecordsController {
   constructor(private readonly foodRecordsService: FoodRecordsService) {}
 
   @Get()
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getFoodRecords',
     summary: '利用者の食事記録一覧を取得',
@@ -57,8 +57,6 @@ export class FoodRecordsController {
   }
 
   @Get('daily')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getDailyFoodRecords',
     summary: '利用者の日別食事記録一覧を取得',
@@ -94,8 +92,6 @@ export class FoodRecordsController {
   }
 
   @Post()
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'createFoodRecord',
     summary: '食事記録を作成',
@@ -116,8 +112,6 @@ export class FoodRecordsController {
   }
 
   @Patch(':uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'updateFoodRecord',
     summary: '食事記録を更新',
@@ -138,8 +132,6 @@ export class FoodRecordsController {
   }
 
   @Delete(':uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'deleteFoodRecord',
     summary: '食事記録を削除',
@@ -158,8 +150,6 @@ export class FoodRecordsController {
   }
 
   @Get(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getFoodRecordTranscription',
     summary: '食事記録の文字起こしを取得',
@@ -179,8 +169,6 @@ export class FoodRecordsController {
   }
 
   @Patch(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'appendFoodRecordTranscription',
     summary: '食事記録の文字起こしを追記',
@@ -201,8 +189,6 @@ export class FoodRecordsController {
   }
 
   @Put(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'updateFoodRecordTranscription',
     summary: '食事記録の文字起こしを置換',
@@ -223,8 +209,6 @@ export class FoodRecordsController {
   }
 
   @Delete(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'deleteFoodRecordTranscription',
     summary: '食事記録の文字起こしを削除',
@@ -243,8 +227,6 @@ export class FoodRecordsController {
   }
 
   @Post(':uid/extract')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'extractFoodRecord',
     summary: '食事記録から情報を抽出',
