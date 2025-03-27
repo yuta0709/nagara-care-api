@@ -47,7 +47,7 @@ export class ResidentsController {
     type: ResidentListResponseDto,
   })
   findByTenant(
-    @Param('tenantUid') tenantUid: string | null,
+    @Param('tenantUid') tenantUid: string,
     @UserDecorator() user: User,
   ): Promise<ResidentListResponseDto> {
     return this.residentsService.findByTenant(tenantUid, user);
