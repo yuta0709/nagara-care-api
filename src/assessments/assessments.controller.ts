@@ -28,14 +28,14 @@ import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { AssessmentDto } from './dtos/assessment.output.dto';
 import { AssessmentListResponseDto } from './dtos/assessment-list.output.dto';
 
+@Authorize([UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+@ApiBearerAuth('JWT-auth')
 @ApiTags('assessments')
-@Controller()
+@Controller('assessments')
 export class AssessmentsController {
   constructor(private readonly assessmentsService: AssessmentsService) {}
 
-  @Get('assessments')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
+  @Get()
   @ApiOperation({
     operationId: 'getAssessments',
     summary: 'アセスメント一覧を取得',
@@ -49,9 +49,7 @@ export class AssessmentsController {
     return this.assessmentsService.findByTenant(user.tenantUid);
   }
 
-  @Post('assessments')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
+  @Post()
   @ApiOperation({
     operationId: 'createAssessment',
     summary: 'アセスメントを作成',
@@ -69,9 +67,7 @@ export class AssessmentsController {
     return this.assessmentsService.create(input, user);
   }
 
-  @Get('assessments/:uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
+  @Get(':uid')
   @ApiOperation({
     operationId: 'getAssessment',
     summary: 'アセスメントの詳細を取得',
@@ -89,9 +85,7 @@ export class AssessmentsController {
     return this.assessmentsService.findOne(uid, user);
   }
 
-  @Patch('assessments/:uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
+  @Patch(':uid')
   @ApiOperation({
     operationId: 'updateAssessment',
     summary: 'アセスメントを更新',
@@ -110,9 +104,7 @@ export class AssessmentsController {
     return this.assessmentsService.update(uid, input, user);
   }
 
-  @Delete('assessments/:uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
+  @Delete(':uid')
   @ApiOperation({
     operationId: 'deleteAssessment',
     summary: 'アセスメントを削除',
@@ -129,9 +121,7 @@ export class AssessmentsController {
     return this.assessmentsService.delete(uid, user);
   }
 
-  @Get('assessments/:uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
+  @Get(':uid/transcription')
   @ApiOperation({
     operationId: 'getAssessmentTranscription',
     summary: 'アセスメントの文字起こしを取得',
@@ -149,9 +139,7 @@ export class AssessmentsController {
     return this.assessmentsService.getTranscription(uid, user);
   }
 
-  @Patch('assessments/:uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
+  @Patch(':uid/transcription')
   @ApiOperation({
     operationId: 'appendAssessmentTranscription',
     summary: 'アセスメントの文字起こしを追記',
@@ -170,9 +158,7 @@ export class AssessmentsController {
     return this.assessmentsService.appendTranscription(uid, input, user);
   }
 
-  @Put('assessments/:uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
+  @Put(':uid/transcription')
   @ApiOperation({
     operationId: 'updateAssessmentTranscription',
     summary: 'アセスメントの文字起こしを置換',
@@ -191,9 +177,7 @@ export class AssessmentsController {
     return this.assessmentsService.updateTranscription(uid, input, user);
   }
 
-  @Delete('assessments/:uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
+  @Delete(':uid/transcription')
   @ApiOperation({
     operationId: 'deleteAssessmentTranscription',
     summary: 'アセスメントの文字起こしを削除',
@@ -210,9 +194,7 @@ export class AssessmentsController {
     return this.assessmentsService.deleteTranscription(uid, user);
   }
 
-  @Post('assessments/:uid/summarize')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
+  @Post(':uid/summarize')
   @ApiOperation({
     operationId: 'summarizeAssessment',
     summary: 'アセスメントの要約を作成',
@@ -230,9 +212,7 @@ export class AssessmentsController {
     return this.assessmentsService.summarize(uid, user);
   }
 
-  @Post('assessments/:uid/extract')
-  @Authorize([UserRole.CAREGIVER, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
+  @Post(':uid/extract')
   @ApiOperation({
     operationId: 'extractAssessment',
     summary: 'アセスメントの内容を抽出',

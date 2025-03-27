@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AssessmentCreateInputDto } from './dtos/assessment-create.input.dto';
 import { AssessmentUpdateInputDto } from './dtos/assessment-update.input.dto';
@@ -11,7 +6,6 @@ import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 import {
   User,
-  UserRole,
   CareLevel,
   IndependenceLevel,
   CognitiveIndependence,
@@ -21,6 +15,7 @@ import { AssessmentDto } from './dtos/assessment.output.dto';
 import { AssessmentListResponseDto } from './dtos/assessment-list.output.dto';
 import { summarize } from './llm/summarize';
 import { extractData } from './llm/extractor';
+import { checkPermission } from 'src/common/permission';
 
 @Injectable()
 export class AssessmentsService {
@@ -30,35 +25,11 @@ export class AssessmentsService {
     input: AssessmentCreateInputDto,
     currentUser: User,
   ): Promise<AssessmentDto> {
-    // 対象者の存在確認
-    const subject = await this.prisma.subject.findUnique({
+    const subject = await this.prisma.user.findUniqueOrThrow({
       where: { uid: input.subjectUid },
     });
-    if (!subject) {
-      throw new NotFoundException(
-        `アセスメント対象者が見つかりません（UID: ${input.subjectUid}）`,
-      );
-    }
 
-    // TENANT_ADMINは自身のテナントの対象者にのみアセスメントを作成可能
-    if (
-      currentUser.role === UserRole.TENANT_ADMIN &&
-      subject.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの対象者にアセスメントを作成する権限がありません',
-      );
-    }
-
-    // すでにアセスメントが存在する場合はエラー
-    const existingAssessment = await this.prisma.assessment.findUnique({
-      where: { subjectUid: input.subjectUid },
-    });
-    if (existingAssessment) {
-      throw new BadRequestException(
-        `この対象者のアセスメントはすでに存在します（UID: ${existingAssessment.uid}）`,
-      );
-    }
+    checkPermission(currentUser, subject.tenantUid);
 
     const assessment = await this.prisma.assessment.create({
       data: {
@@ -97,27 +68,14 @@ export class AssessmentsService {
     input: AssessmentUpdateInputDto,
     currentUser: User,
   ): Promise<AssessmentDto> {
-    const targetAssessment = await this.prisma.assessment.findUnique({
+    const targetAssessment = await this.prisma.assessment.findUniqueOrThrow({
       where: { uid },
       include: {
         subject: true,
       },
     });
-    if (!targetAssessment) {
-      throw new NotFoundException(
-        `アセスメントが見つかりません（UID: ${uid}）`,
-      );
-    }
 
-    // TENANT_ADMINは自身のテナントのアセスメントのみ更新可能
-    if (
-      currentUser.role === UserRole.TENANT_ADMIN &&
-      targetAssessment.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントのアセスメントを更新する権限がありません',
-      );
-    }
+    checkPermission(currentUser, targetAssessment.tenantUid);
 
     const updatedAssessment = await this.prisma.assessment.update({
       where: { uid },
@@ -140,29 +98,14 @@ export class AssessmentsService {
   }
 
   async findOne(uid: string, currentUser: User): Promise<AssessmentDto> {
-    const assessment = await this.prisma.assessment.findUnique({
+    const assessment = await this.prisma.assessment.findUniqueOrThrow({
       where: { uid },
       include: {
         subject: true,
       },
     });
 
-    if (!assessment) {
-      throw new NotFoundException(
-        `アセスメントが見つかりません（UID: ${uid}）`,
-      );
-    }
-
-    // TENANT_ADMINとCAREGIVERは自身のテナントのアセスメントのみ取得可能
-    if (
-      (currentUser.role === UserRole.TENANT_ADMIN ||
-        currentUser.role === UserRole.CAREGIVER) &&
-      assessment.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントのアセスメント情報を取得する権限がありません',
-      );
-    }
+    checkPermission(currentUser, assessment.tenantUid);
 
     return plainToInstance(AssessmentDto, assessment, {
       excludeExtraneousValues: true,
@@ -170,24 +113,11 @@ export class AssessmentsService {
   }
 
   async delete(uid: string, currentUser: User): Promise<void> {
-    const targetAssessment = await this.prisma.assessment.findUnique({
+    const targetAssessment = await this.prisma.assessment.findUniqueOrThrow({
       where: { uid },
     });
-    if (!targetAssessment) {
-      throw new NotFoundException(
-        `アセスメントが見つかりません（UID: ${uid}）`,
-      );
-    }
 
-    // TENANT_ADMINは自身のテナントのアセスメントのみ削除可能
-    if (
-      currentUser.role === UserRole.TENANT_ADMIN &&
-      targetAssessment.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントのアセスメントを削除する権限がありません',
-      );
-    }
+    checkPermission(currentUser, targetAssessment.tenantUid);
 
     await this.prisma.assessment.delete({ where: { uid } });
   }
@@ -196,27 +126,12 @@ export class AssessmentsService {
     uid: string,
     currentUser: User,
   ): Promise<TranscriptionDto> {
-    const assessment = await this.prisma.assessment.findUnique({
+    const assessment = await this.prisma.assessment.findUniqueOrThrow({
       where: { uid },
       select: { transcription: true, tenantUid: true },
     });
 
-    if (!assessment) {
-      throw new NotFoundException(
-        `アセスメントが見つかりません（UID: ${uid}）`,
-      );
-    }
-
-    // TENANT_ADMINとCAREGIVERは自身のテナントのアセスメントのみ取得可能
-    if (
-      (currentUser.role === UserRole.TENANT_ADMIN ||
-        currentUser.role === UserRole.CAREGIVER) &&
-      assessment.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントのアセスメント情報を取得する権限がありません',
-      );
-    }
+    checkPermission(currentUser, assessment.tenantUid);
 
     return plainToInstance(TranscriptionDto, assessment, {
       excludeExtraneousValues: true,
@@ -228,26 +143,12 @@ export class AssessmentsService {
     input: TranscriptionInputDto,
     currentUser: User,
   ): Promise<TranscriptionDto> {
-    const assessment = await this.prisma.assessment.findUnique({
+    const assessment = await this.prisma.assessment.findUniqueOrThrow({
       where: { uid },
       select: { transcription: true, tenantUid: true },
     });
 
-    if (!assessment) {
-      throw new NotFoundException(
-        `アセスメントが見つかりません（UID: ${uid}）`,
-      );
-    }
-
-    // TENANT_ADMINは自身のテナントのアセスメントのみ更新可能
-    if (
-      currentUser.role === UserRole.TENANT_ADMIN &&
-      assessment.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントのアセスメントを更新する権限がありません',
-      );
-    }
+    checkPermission(currentUser, assessment.tenantUid);
 
     const updatedAssessment = await this.prisma.assessment.update({
       where: { uid },
@@ -269,26 +170,12 @@ export class AssessmentsService {
     input: TranscriptionInputDto,
     currentUser: User,
   ): Promise<TranscriptionDto> {
-    const assessment = await this.prisma.assessment.findUnique({
+    const assessment = await this.prisma.assessment.findUniqueOrThrow({
       where: { uid },
       select: { tenantUid: true },
     });
 
-    if (!assessment) {
-      throw new NotFoundException(
-        `アセスメントが見つかりません（UID: ${uid}）`,
-      );
-    }
-
-    // TENANT_ADMINは自身のテナントのアセスメントのみ更新可能
-    if (
-      currentUser.role === UserRole.TENANT_ADMIN &&
-      assessment.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントのアセスメントを更新する権限がありません',
-      );
-    }
+    checkPermission(currentUser, assessment.tenantUid);
 
     const updatedAssessment = await this.prisma.assessment.update({
       where: { uid },
@@ -304,26 +191,12 @@ export class AssessmentsService {
   }
 
   async deleteTranscription(uid: string, currentUser: User): Promise<void> {
-    const assessment = await this.prisma.assessment.findUnique({
+    const assessment = await this.prisma.assessment.findUniqueOrThrow({
       where: { uid },
       select: { tenantUid: true },
     });
 
-    if (!assessment) {
-      throw new NotFoundException(
-        `アセスメントが見つかりません（UID: ${uid}）`,
-      );
-    }
-
-    // TENANT_ADMINは自身のテナントのアセスメントのみ更新可能
-    if (
-      currentUser.role === UserRole.TENANT_ADMIN &&
-      assessment.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントのアセスメントを更新する権限がありません',
-      );
-    }
+    checkPermission(currentUser, assessment.tenantUid);
 
     await this.prisma.assessment.update({
       where: { uid },
@@ -356,46 +229,21 @@ export class AssessmentsService {
   }
 
   async summarize(uid: string, currentUser: User): Promise<string> {
-    const assessment = await this.prisma.assessment.findUnique({
+    const assessment = await this.prisma.assessment.findUniqueOrThrow({
       where: { uid },
     });
 
-    if (!assessment) {
-      throw new NotFoundException(
-        `アセスメントが見つかりません（UID: ${uid}）`,
-      );
-    }
-
-    // TENANT_ADMINは自身のテナントのアセスメントのみ要約可能
-    if (
-      currentUser.role === UserRole.TENANT_ADMIN &&
-      assessment.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントのアセスメントを要約する権限がありません',
-      );
-    }
+    checkPermission(currentUser, assessment.tenantUid);
 
     return (await summarize(assessment.transcription)).toString();
   }
 
   async extract(uid: string, currentUser: User): Promise<AssessmentDto> {
-    const assessment = await this.prisma.assessment.findUnique({
+    const assessment = await this.prisma.assessment.findUniqueOrThrow({
       where: { uid },
     });
 
-    if (!assessment) {
-      throw new NotFoundException(
-        `アセスメントが見つかりません（UID: ${uid}）`,
-      );
-    }
-
-    // TENANT_ADMINは自身のテナントのアセスメントのみ抽出可能
-    if (assessment.tenantUid !== currentUser.tenantUid) {
-      throw new UnauthorizedException(
-        '他のテナントのアセスメントを抽出する権限がありません',
-      );
-    }
+    checkPermission(currentUser, assessment.tenantUid);
 
     const result = await extractData(assessment.transcription, assessment);
     return plainToInstance(AssessmentDto, result, {

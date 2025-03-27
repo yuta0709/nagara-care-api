@@ -24,14 +24,14 @@ import { User } from '@prisma/client';
 import { ResidentListResponseDto } from './dtos/resident-list.output.dto';
 import { ResidentDto } from './dtos/resident.output.dto';
 
+@Authorize([UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+@ApiBearerAuth('JWT-auth')
 @ApiTags('residents')
 @Controller()
 export class ResidentsController {
   constructor(private readonly residentsService: ResidentsService) {}
 
   @Get('tenants/:tenantUid/residents')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getResidents',
     summary: 'テナント内の利用者一覧を取得',
@@ -39,8 +39,7 @@ export class ResidentsController {
   @ApiParam({
     name: 'tenantUid',
     required: false,
-    description:
-      'テナントUID（GLOBAL_ADMINの場合、省略すると全テナントの利用者を取得）',
+    description: 'テナントUID',
   })
   @ApiResponse({
     status: 200,
@@ -48,15 +47,13 @@ export class ResidentsController {
     type: ResidentListResponseDto,
   })
   findByTenant(
-    @Param('tenantUid') tenantUid: string | null,
+    @Param('tenantUid') tenantUid: string,
     @UserDecorator() user: User,
   ): Promise<ResidentListResponseDto> {
     return this.residentsService.findByTenant(tenantUid, user);
   }
 
   @Post('tenants/:tenantUid/residents')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'createResident',
     summary: 'テナントに利用者を作成',
@@ -72,13 +69,10 @@ export class ResidentsController {
     @Body() input: ResidentCreateInputDto,
     @UserDecorator() user: User,
   ): Promise<ResidentDto> {
-    input.tenantUid = tenantUid;
     return this.residentsService.create(input, user);
   }
 
   @Get('tenants/:tenantUid/residents/:uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getResident',
     summary: '利用者の詳細を取得',
@@ -99,8 +93,6 @@ export class ResidentsController {
   }
 
   @Patch('tenants/:tenantUid/residents/:uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'updateResident',
     summary: '利用者を更新',
@@ -122,8 +114,6 @@ export class ResidentsController {
   }
 
   @Delete('tenants/:tenantUid/residents/:uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'deleteResident',
     summary: '利用者を削除',

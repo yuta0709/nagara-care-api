@@ -22,6 +22,7 @@ import { FoodRecordExtractedDto } from './dtos/food-record-extracted.output.dto'
 import { PineconeService } from 'src/pinecone.service';
 import { formatFoodRecord } from './llm/format';
 import type { Document } from '@langchain/core/documents';
+import { checkPermission } from 'src/common/permission';
 
 @Injectable()
 export class FoodRecordsService {
@@ -34,22 +35,11 @@ export class FoodRecordsService {
     residentUid: string,
     currentUser: User,
   ): Promise<FoodRecordListResponseDto> {
-    const resident = await this.prisma.resident.findUnique({
+    const resident = await this.prisma.resident.findUniqueOrThrow({
       where: { uid: residentUid },
     });
-    if (!resident) {
-      throw new NotFoundException(`Resident with uid ${residentUid} not found`);
-    }
 
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ取得可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      resident.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を取得する権限がありません',
-      );
-    }
+    checkPermission(currentUser, resident.tenantUid);
 
     const [items, total] = await Promise.all([
       this.prisma.foodRecord.findMany({
@@ -73,24 +63,10 @@ export class FoodRecordsService {
     input: FoodRecordCreateInputDto,
     currentUser: User,
   ): Promise<FoodRecordDto> {
-    const resident = await this.prisma.resident.findUnique({
+    const resident = await this.prisma.resident.findUniqueOrThrow({
       where: { uid: input.residentUid },
     });
-    if (!resident) {
-      throw new NotFoundException(
-        `Resident with uid ${input.residentUid} not found`,
-      );
-    }
-
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ作成可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      resident.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を作成する権限がありません',
-      );
-    }
+    checkPermission(currentUser, resident.tenantUid);
 
     // 同じ利用者の同じ食事時間帯の記録が既に存在するか確認
     const existingRecord = await this.prisma.foodRecord.findFirst({
@@ -179,22 +155,10 @@ export class FoodRecordsService {
     input: FoodRecordUpdateInputDto,
     currentUser: User,
   ): Promise<FoodRecordDto> {
-    const record = await this.prisma.foodRecord.findUnique({
+    const record = await this.prisma.foodRecord.findUniqueOrThrow({
       where: { uid },
     });
-    if (!record) {
-      throw new NotFoundException(`Food record with uid ${uid} not found`);
-    }
-
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ更新可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      record.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を更新する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     // CAREGIVERは自身が作成した記録のみ更新可能
     if (
@@ -247,22 +211,10 @@ export class FoodRecordsService {
   }
 
   async delete(uid: string, currentUser: User): Promise<void> {
-    const record = await this.prisma.foodRecord.findUnique({
+    const record = await this.prisma.foodRecord.findUniqueOrThrow({
       where: { uid },
     });
-    if (!record) {
-      throw new NotFoundException(`Food record with uid ${uid} not found`);
-    }
-
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ削除可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      record.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を削除する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     // CAREGIVERは記録を削除不可
     if (currentUser.role === UserRole.CAREGIVER) {
@@ -278,23 +230,10 @@ export class FoodRecordsService {
     startDate?: Date,
     endDate?: Date,
   ): Promise<DailyFoodRecordsListResponseDto> {
-    const resident = await this.prisma.resident.findUnique({
+    const resident = await this.prisma.resident.findUniqueOrThrow({
       where: { uid: residentUid },
     });
-    if (!resident) {
-      throw new NotFoundException(`Resident with uid ${residentUid} not found`);
-    }
-
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ取得可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      resident.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を取得する権限がありません',
-      );
-    }
-
+    checkPermission(currentUser, resident.tenantUid);
     // 日付範囲の設定（デフォルトは過去30日間）
     const now = new Date();
 
@@ -387,21 +326,12 @@ export class FoodRecordsService {
     uid: string,
     currentUser: User,
   ): Promise<TranscriptionDto> {
-    const record = await this.prisma.foodRecord.findUnique({
+    const record = await this.prisma.foodRecord.findUniqueOrThrow({
       where: { uid },
       select: { transcription: true, tenantUid: true, residentUid: true },
     });
 
-    if (!record) {
-      throw new NotFoundException(`食事記録が見つかりません（UID: ${uid}）`);
-    }
-
-    // 権限チェック
-    await this.checkPermission(
-      record.tenantUid,
-      record.residentUid,
-      currentUser,
-    );
+    checkPermission(currentUser, record.tenantUid);
 
     return plainToInstance(TranscriptionDto, record, {
       excludeExtraneousValues: true,
@@ -413,21 +343,12 @@ export class FoodRecordsService {
     input: TranscriptionInputDto,
     currentUser: User,
   ): Promise<TranscriptionDto> {
-    const record = await this.prisma.foodRecord.findUnique({
+    const record = await this.prisma.foodRecord.findUniqueOrThrow({
       where: { uid },
       select: { transcription: true, tenantUid: true, residentUid: true },
     });
 
-    if (!record) {
-      throw new NotFoundException(`食事記録が見つかりません（UID: ${uid}）`);
-    }
-
-    // 権限チェック
-    await this.checkPermission(
-      record.tenantUid,
-      record.residentUid,
-      currentUser,
-    );
+    checkPermission(currentUser, record.tenantUid);
 
     const updatedRecord = await this.prisma.foodRecord.update({
       where: { uid },
@@ -449,21 +370,12 @@ export class FoodRecordsService {
     input: TranscriptionInputDto,
     currentUser: User,
   ): Promise<TranscriptionDto> {
-    const record = await this.prisma.foodRecord.findUnique({
+    const record = await this.prisma.foodRecord.findUniqueOrThrow({
       where: { uid },
       select: { tenantUid: true, residentUid: true },
     });
 
-    if (!record) {
-      throw new NotFoundException(`食事記録が見つかりません（UID: ${uid}）`);
-    }
-
-    // 権限チェック
-    await this.checkPermission(
-      record.tenantUid,
-      record.residentUid,
-      currentUser,
-    );
+    checkPermission(currentUser, record.tenantUid);
 
     const updatedRecord = await this.prisma.foodRecord.update({
       where: { uid },
@@ -479,21 +391,12 @@ export class FoodRecordsService {
   }
 
   async deleteTranscription(uid: string, currentUser: User): Promise<void> {
-    const record = await this.prisma.foodRecord.findUnique({
+    const record = await this.prisma.foodRecord.findUniqueOrThrow({
       where: { uid },
       select: { tenantUid: true, residentUid: true },
     });
 
-    if (!record) {
-      throw new NotFoundException(`食事記録が見つかりません（UID: ${uid}）`);
-    }
-
-    // 権限チェック
-    await this.checkPermission(
-      record.tenantUid,
-      record.residentUid,
-      currentUser,
-    );
+    checkPermission(currentUser, record.tenantUid);
 
     await this.prisma.foodRecord.update({
       where: { uid },
@@ -507,21 +410,13 @@ export class FoodRecordsService {
     uid: string,
     currentUser: User,
   ): Promise<FoodRecordExtractedDto> {
-    const record = await this.prisma.foodRecord.findUnique({
+    const record = await this.prisma.foodRecord.findUniqueOrThrow({
       where: { uid },
       select: { transcription: true, tenantUid: true, residentUid: true },
     });
 
-    if (!record) {
-      throw new NotFoundException(`食事記録が見つかりません（UID: ${uid}）`);
-    }
+    checkPermission(currentUser, record.tenantUid);
 
-    // 権限チェック
-    await this.checkPermission(
-      record.tenantUid,
-      record.residentUid,
-      currentUser,
-    );
     const currentState = await this.prisma.foodRecord.findUnique({
       where: { uid },
     });
@@ -534,24 +429,5 @@ export class FoodRecordsService {
     return plainToInstance(FoodRecordExtractedDto, extractedData, {
       excludeExtraneousValues: true,
     });
-  }
-
-  // 権限チェック用のヘルパーメソッド
-  private async checkPermission(
-    tenantUid: string | null,
-    residentUid: string | null,
-    currentUser: User,
-  ): Promise<void> {
-    // GLOBAL_ADMINはすべての記録にアクセス可能
-    if (currentUser.role === UserRole.GLOBAL_ADMIN) {
-      return;
-    }
-
-    // TENANT_ADMINとCAREGIVERは自身のテナントの記録のみアクセス可能
-    if (tenantUid !== currentUser.tenantUid) {
-      throw new UnauthorizedException(
-        '他のテナントの記録にアクセスする権限がありません',
-      );
-    }
   }
 }

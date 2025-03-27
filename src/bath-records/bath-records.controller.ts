@@ -28,14 +28,14 @@ import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { BathRecordExtractedDto } from './dtos/bath-record-extracted.output.dto';
 
+@Authorize([UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+@ApiBearerAuth('JWT-auth')
 @ApiTags('bath-records')
 @Controller('residents/:residentUid/bath-records')
 export class BathRecordsController {
   constructor(private readonly bathRecordsService: BathRecordsService) {}
 
   @Get()
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getBathRecords',
     summary: '利用者の入浴記録一覧を取得',
@@ -54,8 +54,6 @@ export class BathRecordsController {
   }
 
   @Post()
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'createBathRecord',
     summary: '入浴記録を作成',
@@ -76,8 +74,6 @@ export class BathRecordsController {
   }
 
   @Patch(':uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'updateBathRecord',
     summary: '入浴記録を更新',
@@ -98,8 +94,6 @@ export class BathRecordsController {
   }
 
   @Delete(':uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'deleteBathRecord',
     summary: '入浴記録を削除',
@@ -118,8 +112,6 @@ export class BathRecordsController {
   }
 
   @Get(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getBathRecordTranscription',
     summary: '入浴記録の文字起こしを取得',
@@ -139,8 +131,6 @@ export class BathRecordsController {
   }
 
   @Patch(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'appendBathRecordTranscription',
     summary: '入浴記録の文字起こしを追記',
@@ -161,8 +151,6 @@ export class BathRecordsController {
   }
 
   @Put(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'updateBathRecordTranscription',
     summary: '入浴記録の文字起こしを置換',
@@ -183,8 +171,6 @@ export class BathRecordsController {
   }
 
   @Delete(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'deleteBathRecordTranscription',
     summary: '入浴記録の文字起こしを削除',
@@ -203,8 +189,6 @@ export class BathRecordsController {
   }
 
   @Post(':uid/extract')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'extractBathRecord',
     summary: '入浴記録から情報を抽出',

@@ -17,6 +17,7 @@ import { PineconeService } from 'src/pinecone.service';
 import { formatDailyRecord } from './llm/format';
 import type { Document } from '@langchain/core/documents';
 import { DailyRecordExtractedDto } from './dtos/daily-record-extracted.output.dto';
+import { checkPermission } from 'src/common/permission';
 @Injectable()
 export class DailyRecordsService {
   constructor(
@@ -28,22 +29,11 @@ export class DailyRecordsService {
     residentUid: string,
     currentUser: User,
   ): Promise<DailyRecordListResponseDto> {
-    const resident = await this.prisma.resident.findUnique({
+    const resident = await this.prisma.resident.findUniqueOrThrow({
       where: { uid: residentUid },
     });
-    if (!resident) {
-      throw new NotFoundException(`Resident with uid ${residentUid} not found`);
-    }
 
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ取得可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      resident.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を取得する権限がありません',
-      );
-    }
+    checkPermission(currentUser, resident.tenantUid);
 
     const [items, total] = await Promise.all([
       this.prisma.dailyRecord.findMany({
@@ -64,22 +54,11 @@ export class DailyRecordsService {
   }
 
   async findOne(uid: string, currentUser: User): Promise<DailyRecordDto> {
-    const record = await this.prisma.dailyRecord.findUnique({
+    const record = await this.prisma.dailyRecord.findUniqueOrThrow({
       where: { uid },
     });
-    if (!record) {
-      throw new NotFoundException(`Daily record with uid ${uid} not found`);
-    }
 
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ取得可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      record.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を取得する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     return plainToInstance(DailyRecordDto, record, {
       excludeExtraneousValues: true,
@@ -90,24 +69,10 @@ export class DailyRecordsService {
     input: DailyRecordCreateInputDto,
     currentUser: User,
   ): Promise<DailyRecordDto> {
-    const resident = await this.prisma.resident.findUnique({
+    const resident = await this.prisma.resident.findUniqueOrThrow({
       where: { uid: input.residentUid },
     });
-    if (!resident) {
-      throw new NotFoundException(
-        `Resident with uid ${input.residentUid} not found`,
-      );
-    }
-
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ作成可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      resident.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を作成する権限がありません',
-      );
-    }
+    checkPermission(currentUser, resident.tenantUid);
 
     const record = await this.prisma.dailyRecord.create({
       data: {
@@ -163,22 +128,10 @@ export class DailyRecordsService {
     input: DailyRecordUpdateInputDto,
     currentUser: User,
   ): Promise<DailyRecordDto> {
-    const record = await this.prisma.dailyRecord.findUnique({
+    const record = await this.prisma.dailyRecord.findUniqueOrThrow({
       where: { uid },
     });
-    if (!record) {
-      throw new NotFoundException(`Daily record with uid ${uid} not found`);
-    }
-
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ更新可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      record.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を更新する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     // CAREGIVERは自身が作成した記録のみ更新可能
     if (
@@ -187,16 +140,6 @@ export class DailyRecordsService {
     ) {
       throw new UnauthorizedException(
         '他の介護者の記録を更新する権限がありません',
-      );
-    }
-
-    // 24時間以内の記録のみ更新可能
-    const now = new Date();
-    const recordDate = new Date(record.recordedAt);
-    const hoursDiff = (now.getTime() - recordDate.getTime()) / (1000 * 60 * 60);
-    if (hoursDiff > 24) {
-      throw new BadRequestException(
-        '作成から24時間以上経過した記録は更新できません',
       );
     }
 
@@ -211,22 +154,10 @@ export class DailyRecordsService {
   }
 
   async delete(uid: string, currentUser: User): Promise<void> {
-    const record = await this.prisma.dailyRecord.findUnique({
+    const record = await this.prisma.dailyRecord.findUniqueOrThrow({
       where: { uid },
     });
-    if (!record) {
-      throw new NotFoundException(`Daily record with uid ${uid} not found`);
-    }
-
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ削除可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      record.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を削除する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     // CAREGIVERは記録を削除不可
     if (currentUser.role === UserRole.CAREGIVER) {
@@ -241,24 +172,11 @@ export class DailyRecordsService {
     uid: string,
     currentUser: User,
   ): Promise<TranscriptionDto> {
-    const record = await this.prisma.dailyRecord.findUnique({
+    const record = await this.prisma.dailyRecord.findUniqueOrThrow({
       where: { uid },
       select: { transcription: true, tenantUid: true, residentUid: true },
     });
-
-    if (!record) {
-      throw new NotFoundException(`日常記録が見つかりません（UID: ${uid}）`);
-    }
-
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ取得可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      record.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を取得する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     return plainToInstance(TranscriptionDto, record, {
       excludeExtraneousValues: true,
@@ -270,24 +188,11 @@ export class DailyRecordsService {
     input: TranscriptionInputDto,
     currentUser: User,
   ): Promise<TranscriptionDto> {
-    const record = await this.prisma.dailyRecord.findUnique({
+    const record = await this.prisma.dailyRecord.findUniqueOrThrow({
       where: { uid },
       select: { transcription: true, tenantUid: true, residentUid: true },
     });
-
-    if (!record) {
-      throw new NotFoundException(`日常記録が見つかりません（UID: ${uid}）`);
-    }
-
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ更新可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      record.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を更新する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     const updatedRecord = await this.prisma.dailyRecord.update({
       where: { uid },
@@ -309,24 +214,11 @@ export class DailyRecordsService {
     input: TranscriptionInputDto,
     currentUser: User,
   ): Promise<TranscriptionDto> {
-    const record = await this.prisma.dailyRecord.findUnique({
+    const record = await this.prisma.dailyRecord.findUniqueOrThrow({
       where: { uid },
       select: { transcription: true, tenantUid: true, residentUid: true },
     });
-
-    if (!record) {
-      throw new NotFoundException(`日常記録が見つかりません（UID: ${uid}）`);
-    }
-
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ更新可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      record.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を更新する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     const updatedRecord = await this.prisma.dailyRecord.update({
       where: { uid },
@@ -342,24 +234,11 @@ export class DailyRecordsService {
   }
 
   async deleteTranscription(uid: string, currentUser: User): Promise<void> {
-    const record = await this.prisma.dailyRecord.findUnique({
+    const record = await this.prisma.dailyRecord.findUniqueOrThrow({
       where: { uid },
       select: { transcription: true, tenantUid: true, residentUid: true },
     });
-
-    if (!record) {
-      throw new NotFoundException(`日常記録が見つかりません（UID: ${uid}）`);
-    }
-
-    // GLOBAL_ADMIN以外は自身のテナントの記録のみ更新可能
-    if (
-      currentUser.role !== UserRole.GLOBAL_ADMIN &&
-      record.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を更新する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     await this.prisma.dailyRecord.update({
       where: { uid },
@@ -373,18 +252,10 @@ export class DailyRecordsService {
     uid: string,
     currentUser: User,
   ): Promise<DailyRecordExtractedDto> {
-    const record = await this.prisma.dailyRecord.findUnique({
+    const record = await this.prisma.dailyRecord.findUniqueOrThrow({
       where: { uid },
     });
-    if (!record) {
-      throw new NotFoundException(`Daily record with uid ${uid} not found`);
-    }
-
-    if (record.tenantUid !== currentUser.tenantUid) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者の記録を取得する権限がありません',
-      );
-    }
+    checkPermission(currentUser, record.tenantUid);
 
     return plainToInstance(DailyRecordExtractedDto, record, {
       excludeExtraneousValues: true,

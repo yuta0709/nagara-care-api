@@ -38,7 +38,4 @@ export class ResidentCreateInputDto {
   @ApiProperty({ description: '入所日', example: '2024-01-01' })
   @IsDateString()
   admissionDate: string;
-
-  // テナントUIDはコントローラーで設定
-  tenantUid?: string;
 }
