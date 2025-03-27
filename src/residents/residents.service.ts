@@ -10,27 +10,22 @@ import { User, UserRole } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { ResidentDto } from './dtos/resident.output.dto';
 import { ResidentListResponseDto } from './dtos/resident-list.output.dto';
+import { checkPermission } from 'src/common/permission';
 
 @Injectable()
 export class ResidentsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findByTenant(
-    tenantUid: string | null,
+    tenantUid: string,
     currentUser: User,
   ): Promise<ResidentListResponseDto> {
-    // GLOBAL_ADMINの場合、tenantUidがnullなら全テナントの利用者を取得
-    const where =
-      currentUser.role === UserRole.GLOBAL_ADMIN && !tenantUid
-        ? {}
-        : { tenantUid: tenantUid ?? currentUser.tenantUid };
-
     const [items, total] = await Promise.all([
       this.prisma.resident.findMany({
-        where,
+        where: { tenantUid: tenantUid },
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.resident.count({ where }),
+      this.prisma.resident.count({ where: { tenantUid: tenantUid } }),
     ]);
 
     return {
@@ -45,16 +40,6 @@ export class ResidentsService {
     input: ResidentCreateInputDto,
     currentUser: User,
   ): Promise<ResidentDto> {
-    // TENANT_ADMINは自身のテナントにのみ作成可能
-    if (
-      currentUser.role === UserRole.TENANT_ADMIN &&
-      currentUser.tenantUid !== input.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントに利用者を作成する権限がありません',
-      );
-    }
-
     const resident = await this.prisma.resident.create({
       data: {
         familyName: input.familyName,
@@ -66,7 +51,7 @@ export class ResidentsService {
         admissionDate: new Date(input.admissionDate),
         tenant: {
           connect: {
-            uid: input.tenantUid,
+            uid: currentUser.tenantUid,
           },
         },
       },
@@ -82,22 +67,11 @@ export class ResidentsService {
     input: ResidentUpdateInputDto,
     currentUser: User,
   ): Promise<ResidentDto> {
-    const targetResident = await this.prisma.resident.findUnique({
+    const targetResident = await this.prisma.resident.findUniqueOrThrow({
       where: { uid },
     });
-    if (!targetResident) {
-      throw new NotFoundException(`Resident with uid ${uid} not found`);
-    }
 
-    // TENANT_ADMINは自身のテナントの利用者のみ更新可能
-    if (
-      currentUser.role === UserRole.TENANT_ADMIN &&
-      targetResident.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者を更新する権限がありません',
-      );
-    }
+    checkPermission(currentUser, targetResident.tenantUid);
 
     const data: any = { ...input };
     if (input.dateOfBirth) {
@@ -118,45 +92,21 @@ export class ResidentsService {
   }
 
   async delete(uid: string, currentUser: User): Promise<void> {
-    const targetResident = await this.prisma.resident.findUnique({
+    const targetResident = await this.prisma.resident.findUniqueOrThrow({
       where: { uid },
     });
-    if (!targetResident) {
-      throw new NotFoundException(`Resident with uid ${uid} not found`);
-    }
 
-    // TENANT_ADMINは自身のテナントの利用者のみ削除可能
-    if (
-      currentUser.role === UserRole.TENANT_ADMIN &&
-      targetResident.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者を削除する権限がありません',
-      );
-    }
+    checkPermission(currentUser, targetResident.tenantUid);
 
     await this.prisma.resident.delete({ where: { uid } });
   }
 
   async findOne(uid: string, currentUser: User): Promise<ResidentDto> {
-    const resident = await this.prisma.resident.findUnique({
+    const resident = await this.prisma.resident.findUniqueOrThrow({
       where: { uid },
     });
 
-    if (!resident) {
-      throw new NotFoundException(`利用者が見つかりません（UID: ${uid}）`);
-    }
-
-    // TENANT_ADMINとCAREGIVERは自身のテナントの利用者のみ取得可能
-    if (
-      (currentUser.role === UserRole.TENANT_ADMIN ||
-        currentUser.role === UserRole.CAREGIVER) &&
-      resident.tenantUid !== currentUser.tenantUid
-    ) {
-      throw new UnauthorizedException(
-        '他のテナントの利用者情報を取得する権限がありません',
-      );
-    }
+    checkPermission(currentUser, resident.tenantUid);
 
     return plainToInstance(ResidentDto, resident, {
       excludeExtraneousValues: true,
