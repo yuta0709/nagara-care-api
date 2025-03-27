@@ -2280,6 +2280,29 @@ paths:
       security: *a13
       summary: QAセッションの音声ファイルの文字起こしを更新する
       tags: *a14
+  /transcription:
+    post:
+      operationId: transcribeAudio
+      parameters: []
+      requestBody:
+        required: true
+        description: audio file
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/TranscriptAudioInputDto"
+      responses:
+        "200":
+          description: 文字起こしが成功した場合
+          content:
+            application/json:
+              schema:
+                type: string
+      security:
+        - JWT-auth: []
+      summary: 音声ファイルを文字起こしする
+      tags:
+        - transcription
 info:
   title: Nagara Care API
   description: ""
@@ -4256,3 +4279,11 @@ components:
             $ref: "#/components/schemas/ExtractedQaPair"
       required:
         - data
+    TranscriptAudioInputDto:
+      type: object
+      properties:
+        audio:
+          type: string
+          format: binary
+      required:
+        - audio

@@ -16,6 +16,7 @@ import { AssessmentsModule } from './assessments/assessments.module';
 import { SubjectsModule } from './subjects/subjects.module';
 import { ChatModule } from './chat/chat.module';
 import { QaModule } from './qa/qa.module';
+import { TranscriptionModule } from './transcription/transcription.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { QaModule } from './qa/qa.module';
     SubjectsModule,
     ChatModule,
     QaModule,
+    TranscriptionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
