@@ -17,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { TranscriptAudioInputDto } from './dtos/transcript-audio.input.dto';
 import { Authorize } from 'src/auth/roles.guard';
+import { Express } from 'express';
 
 @ApiTags('transcription')
 @Controller('transcription')
