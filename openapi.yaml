@@ -1610,10 +1610,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AssessmentListResponseDto"
-      security:
+      security: &a10
         - JWT-auth: []
       summary: アセスメント一覧を取得
-      tags: &a10
+      tags: &a11
         - assessments
     post:
       operationId: createAssessment
@@ -1631,10 +1631,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AssessmentDto"
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: アセスメントを作成
-      tags: *a10
+      tags: *a11
   /assessments/{uid}:
     get:
       operationId: getAssessment
@@ -1652,10 +1651,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AssessmentDto"
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: アセスメントの詳細を取得
-      tags: *a10
+      tags: *a11
     patch:
       operationId: updateAssessment
       parameters:
@@ -1678,10 +1676,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AssessmentDto"
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: アセスメントを更新
-      tags: *a10
+      tags: *a11
     delete:
       operationId: deleteAssessment
       parameters:
@@ -1694,10 +1691,9 @@ paths:
       responses:
         "200":
           description: アセスメントの削除に成功
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: アセスメントを削除
-      tags: *a10
+      tags: *a11
   /assessments/{uid}/transcription:
     get:
       operationId: getAssessmentTranscription
@@ -1715,10 +1711,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: アセスメントの文字起こしを取得
-      tags: *a10
+      tags: *a11
     patch:
       operationId: appendAssessmentTranscription
       parameters:
@@ -1741,10 +1736,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: アセスメントの文字起こしを追記
-      tags: *a10
+      tags: *a11
     put:
       operationId: updateAssessmentTranscription
       parameters:
@@ -1767,10 +1761,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: アセスメントの文字起こしを置換
-      tags: *a10
+      tags: *a11
     delete:
       operationId: deleteAssessmentTranscription
       parameters:
@@ -1783,10 +1776,9 @@ paths:
       responses:
         "200":
           description: アセスメントの文字起こし削除に成功
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: アセスメントの文字起こしを削除
-      tags: *a10
+      tags: *a11
   /assessments/{uid}/summarize:
     post:
       operationId: summarizeAssessment
@@ -1804,10 +1796,9 @@ paths:
             application/json:
               schema:
                 type: string
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: アセスメントの要約を作成
-      tags: *a10
+      tags: *a11
   /assessments/{uid}/extract:
     post:
       operationId: extractAssessment
@@ -1825,10 +1816,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AssessmentExtractDto"
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: アセスメントの内容を抽出
-      tags: *a10
+      tags: *a11
   /tenants/{tenantUid}/subjects:
     get:
       operationId: getSubjects
@@ -1849,7 +1839,7 @@ paths:
       security:
         - JWT-auth: []
       summary: テナント内のアセスメント対象者一覧を取得
-      tags: &a11
+      tags: &a12
         - subjects
     post:
       operationId: createSubject
@@ -1876,7 +1866,7 @@ paths:
       security:
         - JWT-auth: []
       summary: テナントにアセスメント対象者を作成
-      tags: *a11
+      tags: *a12
   /tenants/{tenantUid}/subjects/{uid}:
     get:
       operationId: getSubject
@@ -1903,7 +1893,7 @@ paths:
       security:
         - JWT-auth: []
       summary: アセスメント対象者の詳細を取得
-      tags: *a11
+      tags: *a12
     patch:
       operationId: updateSubject
       parameters:
@@ -1935,7 +1925,7 @@ paths:
       security:
         - JWT-auth: []
       summary: アセスメント対象者を更新
-      tags: *a11
+      tags: *a12
     delete:
       operationId: deleteSubject
       parameters:
@@ -1957,7 +1947,7 @@ paths:
       security:
         - JWT-auth: []
       summary: アセスメント対象者を削除
-      tags: *a11
+      tags: *a12
   /chats:
     post:
       operationId: createThread
@@ -1972,7 +1962,7 @@ paths:
       security:
         - JWT-auth: []
       summary: 新しいスレッドを作成
-      tags: &a12
+      tags: &a13
         - chats
     get:
       operationId: getThreads
@@ -1987,7 +1977,7 @@ paths:
       security:
         - JWT-auth: []
       summary: スレッド一覧を取得
-      tags: *a12
+      tags: *a13
   /chats/{uid}:
     get:
       operationId: getThread
@@ -2008,7 +1998,7 @@ paths:
       security:
         - JWT-auth: []
       summary: 特定のスレッドを取得
-      tags: *a12
+      tags: *a13
     put:
       operationId: updateThread
       parameters:
@@ -2030,7 +2020,7 @@ paths:
       security:
         - JWT-auth: []
       summary: スレッドを更新
-      tags: *a12
+      tags: *a13
     delete:
       operationId: deleteThread
       parameters:
@@ -2046,7 +2036,7 @@ paths:
       security:
         - JWT-auth: []
       summary: スレッドを削除
-      tags: *a12
+      tags: *a13
   /chats/{uid}/messages:
     post:
       operationId: createMessage
@@ -2069,7 +2059,7 @@ paths:
       security:
         - JWT-auth: []
       summary: メッセージを作成
-      tags: *a12
+      tags: *a13
   /qa/sessions:
     post:
       operationId: createQaSession
@@ -2087,10 +2077,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/QaSessionOutputDto"
-      security: &a13
+      security: &a14
         - JWT-auth: []
       summary: QAセッションを作成する
-      tags: &a14
+      tags: &a15
         - qa
     get:
       operationId: findQaSessionsByUser
@@ -2102,9 +2092,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/QaSessionListOutputDto"
-      security: *a13
+      security: *a14
       summary: ユーザーに紐づくQAセッション一覧を取得する
-      tags: *a14
+      tags: *a15
   /qa/sessions/{uid}:
     get:
       operationId: findQaSession
@@ -2124,9 +2114,9 @@ paths:
                 $ref: "#/components/schemas/QaSessionOutputDto"
         "404":
           description: QAセッションが見つかりません
-      security: *a13
+      security: *a14
       summary: QAセッションを取得する
-      tags: *a14
+      tags: *a15
     delete:
       operationId: deleteQaSession
       parameters:
@@ -2141,9 +2131,9 @@ paths:
           description: QAセッションが削除されました
         "404":
           description: QAセッションが見つかりません
-      security: *a13
+      security: *a14
       summary: QAセッションを削除する
-      tags: *a14
+      tags: *a15
   /qa/question-answers:
     post:
       operationId: addQuestionAnswer
@@ -2161,9 +2151,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/QuestionAnswerOutputDto"
-      security: *a13
+      security: *a14
       summary: QAセッションに質問回答を追加する
-      tags: *a14
+      tags: *a15
   /qa/question-answers/{uid}:
     put:
       operationId: updateQuestionAnswer
@@ -2189,9 +2179,9 @@ paths:
                 $ref: "#/components/schemas/QuestionAnswerOutputDto"
         "404":
           description: 質問回答が見つかりません
-      security: *a13
+      security: *a14
       summary: 質問回答を更新する
-      tags: *a14
+      tags: *a15
     delete:
       operationId: deleteQuestionAnswer
       parameters:
@@ -2206,9 +2196,9 @@ paths:
           description: 質問回答が削除されました
         "404":
           description: 質問回答が見つかりません
-      security: *a13
+      security: *a14
       summary: 質問回答を削除する
-      tags: *a14
+      tags: *a15
   /qa/sessions/{uid}/upsert-question-answers:
     post:
       operationId: upsertQuestionAnswers
@@ -2233,9 +2223,9 @@ paths:
                 $ref: "#/components/schemas/QaSessionOutputDto"
         "404":
           description: QAセッションが見つかりません
-      security: *a13
+      security: *a14
       summary: QAセッションに紐づく質問回答を一括更新（置き換え）する
-      tags: *a14
+      tags: *a15
   /qa/sessions/{uid}/extract:
     get:
       operationId: extractQaPairsFromTranscription
@@ -2253,9 +2243,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExtractQaPairsOutputDto"
-      security: *a13
+      security: *a14
       summary: 文字起こしから質問と回答のペアを抽出する
-      tags: *a14
+      tags: *a15
   /qa/sessions/{uid}/transcription:
     put:
       operationId: updateTranscription
@@ -2277,9 +2267,9 @@ paths:
           description: 音声ファイルの文字起こしが更新されました
         "404":
           description: QAセッションが見つかりません
-      security: *a13
+      security: *a14
       summary: QAセッションの音声ファイルの文字起こしを更新する
-      tags: *a14
+      tags: *a15
   /transcription:
     post:
       operationId: transcribeAudio
