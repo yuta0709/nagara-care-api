@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { BeverageRecordCreateInputDto } from './dtos/beverage-record-create.input.dto';
 import { BeverageRecordUpdateInputDto } from './dtos/beverage-record-update.input.dto';
 import { User, UserRole } from '@prisma/client';

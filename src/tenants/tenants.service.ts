@@ -3,7 +3,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { TenantCreateInputDto } from './dtos/tenant-create.input.dto';
 import { Tenant, User, UserRole } from '@prisma/client';
 import {

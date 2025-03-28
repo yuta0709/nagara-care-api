@@ -8,7 +8,7 @@ import { User, UserRole } from '@prisma/client';
 import { TenantUserCreateInputDto } from './dtos/tenant-user-create.input.dto';
 import { UserCreateGlobalAdmin } from './dtos/user-create-global-admin.input.dto';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import {
   UserListItemDto,
   UserListResponseDto,

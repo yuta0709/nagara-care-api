@@ -5,7 +5,7 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { BathRecordCreateInputDto } from './dtos/bath-record-create.input.dto';
 import { BathRecordUpdateInputDto } from './dtos/bath-record-update.input.dto';
 import { User, UserRole } from '@prisma/client';

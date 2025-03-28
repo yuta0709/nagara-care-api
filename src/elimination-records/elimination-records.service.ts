@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { EliminationRecordCreateInputDto } from './dtos/elimination-record-create.input.dto';
 import { EliminationRecordUpdateInputDto } from './dtos/elimination-record-update.input.dto';
 import { User, UserRole } from '@prisma/client';

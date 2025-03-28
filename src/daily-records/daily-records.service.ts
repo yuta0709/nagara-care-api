@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { DailyRecordCreateInputDto } from './dtos/daily-record-create.input.dto';
 import { DailyRecordUpdateInputDto } from './dtos/daily-record-update.input.dto';
 import { User, UserRole } from '@prisma/client';
@@ -13,7 +13,7 @@ import { DailyRecordDto } from './dtos/daily-record.output.dto';
 import { DailyRecordListResponseDto } from './dtos/daily-record-list.output.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';
-import { PineconeService } from 'src/pinecone.service';
+import { PineconeService } from 'src/pinecone/pinecone.service';
 import { formatDailyRecord } from './llm/format';
 import type { Document } from '@langchain/core/documents';
 import { DailyRecordExtractedDto } from './dtos/daily-record-extracted.output.dto';

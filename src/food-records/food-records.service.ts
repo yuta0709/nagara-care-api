@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { FoodRecordCreateInputDto } from './dtos/food-record-create.input.dto';
 import { FoodRecordUpdateInputDto } from './dtos/food-record-update.input.dto';
 import { User, UserRole, MealTime, FoodRecord } from '@prisma/client';
@@ -19,7 +19,7 @@ import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { extractData } from './llm/extractor';
 import { FoodRecordExtractedDto } from './dtos/food-record-extracted.output.dto';
-import { PineconeService } from 'src/pinecone.service';
+import { PineconeService } from 'src/pinecone/pinecone.service';
 import { formatFoodRecord } from './llm/format';
 import type { Document } from '@langchain/core/documents';
 import { checkPermission } from 'src/common/permission';
