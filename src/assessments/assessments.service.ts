@@ -25,7 +25,7 @@ export class AssessmentsService {
     input: AssessmentCreateInputDto,
     currentUser: User,
   ): Promise<AssessmentDto> {
-    const subject = await this.prisma.user.findUniqueOrThrow({
+    const subject = await this.prisma.subject.findUniqueOrThrow({
       where: { uid: input.subjectUid },
     });
 
