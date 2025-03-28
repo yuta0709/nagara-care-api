@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
+import { PrismaNotFoundExceptionFilter } from './common/filters/prisma-not-found-exception.filter';
 
 async function writeOpenAPISpec(app: any) {
   const config = new DocumentBuilder()
@@ -39,6 +40,7 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new PrismaNotFoundExceptionFilter());
 
   const document = await writeOpenAPISpec(app);
   SwaggerModule.setup('docs', app, document);
