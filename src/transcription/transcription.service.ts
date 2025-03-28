@@ -5,6 +5,9 @@ import { promisify } from 'util';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
+import { ElevenLabsClient } from 'elevenlabs/Client';
+import { DiarizationOutputDto } from './dtos/diarization.output.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class TranscriptionService {
@@ -56,5 +59,32 @@ export class TranscriptionService {
         ),
       ]);
     }
+  }
+
+  async transcribeWithDiarization(audio: File) {
+    const client = new ElevenLabsClient({
+      apiKey: process.env.ELEVENLABS_API_KEY,
+    });
+    const transcription = await client.speechToText.convert({
+      file: audio,
+      model_id: 'scribe_v1',
+      language_code: 'ja',
+      diarize: true,
+    });
+
+    const mergedWords: { speaker_id: string | null; text: string }[] = [];
+
+    for (const word of transcription.words) {
+      const lastWord = mergedWords[mergedWords.length - 1];
+      if (!lastWord || lastWord.speaker_id !== word.speaker_id) {
+        mergedWords.push({ speaker_id: word.speaker_id, text: word.text });
+      } else {
+        lastWord.text += word.text;
+      }
+    }
+
+    return plainToInstance(DiarizationOutputDto, {
+      words: mergedWords,
+    });
   }
 }

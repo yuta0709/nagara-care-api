@@ -2218,11 +2218,32 @@ paths:
             application/json:
               schema:
                 type: string
-      security:
+      security: &a23
         - JWT-auth: []
       summary: 音声ファイルを文字起こしする
-      tags:
+      tags: &a24
         - transcription
+  /diarization:
+    post:
+      operationId: transcribeAudioWithDiarization
+      parameters: []
+      requestBody:
+        required: true
+        description: audio file
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/TranscriptAudioInputDto"
+      responses:
+        "200":
+          description: 文字起こしが成功した場合
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiarizationOutputDto"
+      security: *a23
+      summary: 音声ファイルを文字起こしする
+      tags: *a24
 info:
   title: Nagara Care API
   description: ""
@@ -4203,3 +4224,22 @@ components:
           format: binary
       required:
         - audio
+    Word:
+      type: object
+      properties:
+        speaker_id:
+          type: string
+        text:
+          type: string
+      required:
+        - speaker_id
+        - text
+    DiarizationOutputDto:
+      type: object
+      properties:
+        words:
+          type: array
+          items:
+            $ref: "#/components/schemas/Word"
+      required:
+        - words
