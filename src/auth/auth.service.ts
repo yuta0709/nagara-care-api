@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { TokenDto } from './dtos/token.output.dto';
 import { plainToInstance } from 'class-transformer';
 import { UsersService } from '../users/users.service';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuthService {

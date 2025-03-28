@@ -1,12 +1,8 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { ResidentCreateInputDto } from './dtos/resident-create.input.dto';
 import { ResidentUpdateInputDto } from './dtos/resident-update.input.dto';
-import { User, UserRole } from '@prisma/client';
+import { User } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { ResidentDto } from './dtos/resident.output.dto';
 import { ResidentListResponseDto } from './dtos/resident-list.output.dto';

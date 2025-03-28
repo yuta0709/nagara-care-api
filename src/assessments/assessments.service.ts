@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { AssessmentCreateInputDto } from './dtos/assessment-create.input.dto';
 import { AssessmentUpdateInputDto } from './dtos/assessment-update.input.dto';
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';

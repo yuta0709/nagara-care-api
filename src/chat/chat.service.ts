@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MessageRole, User } from '@prisma/client';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import {
   ThreadListItemOutputDto,
   ThreadListOutputDto,
@@ -13,7 +13,7 @@ import { ChatMessage, HumanMessage } from '@langchain/core/messages';
 import { getAiResponse } from './llm/chat';
 import { ThreadUpdateInputDto } from './dtos/thread-update.input.dto';
 import { ThreadCreateOutputDto } from './dtos/thread-create.output.dto';
-import { PineconeService } from 'src/pinecone.service';
+import { PineconeService } from 'src/pinecone/pinecone.service';
 @Injectable()
 export class ChatService {
   constructor(

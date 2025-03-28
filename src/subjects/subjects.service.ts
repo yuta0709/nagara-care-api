@@ -3,7 +3,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { SubjectCreateInputDto } from './dtos/subject-create.input.dto';
 import { SubjectUpdateInputDto } from './dtos/subject-update.input.dto';
 import { User, UserRole } from '@prisma/client';
