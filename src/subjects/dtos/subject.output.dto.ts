@@ -31,10 +31,6 @@ export class SubjectDto {
   @Expose()
   gender: Gender;
 
-  @ApiProperty({ description: 'テナントUID' })
-  @Expose()
-  tenantUid: string | null;
-
   @ApiProperty({ description: '作成日時' })
   @Expose()
   createdAt: Date;

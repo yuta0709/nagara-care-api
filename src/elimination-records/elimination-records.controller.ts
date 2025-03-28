@@ -29,6 +29,8 @@ import { EliminationRecordDto } from './dtos/elimination-record.output.dto';
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 
+@Authorize([UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+@ApiBearerAuth('JWT-auth')
 @ApiTags('elimination-records')
 @Controller('residents/:residentUid/elimination-records')
 export class EliminationRecordsController {
@@ -37,8 +39,6 @@ export class EliminationRecordsController {
   ) {}
 
   @Get()
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getEliminationRecords',
     summary: '利用者の排泄記録一覧を取得',
@@ -57,8 +57,6 @@ export class EliminationRecordsController {
   }
 
   @Post()
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'createEliminationRecord',
     summary: '排泄記録を作成',
@@ -79,8 +77,6 @@ export class EliminationRecordsController {
   }
 
   @Patch(':uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'updateEliminationRecord',
     summary: '排泄記録を更新',
@@ -101,8 +97,6 @@ export class EliminationRecordsController {
   }
 
   @Delete(':uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'deleteEliminationRecord',
     summary: '排泄記録を削除',
@@ -121,8 +115,6 @@ export class EliminationRecordsController {
   }
 
   @Get(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'getEliminationRecordTranscription',
     summary: '排泄記録の文字起こしを取得',
@@ -142,8 +134,6 @@ export class EliminationRecordsController {
   }
 
   @Patch(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'appendEliminationRecordTranscription',
     summary: '排泄記録の文字起こしを追記',
@@ -164,8 +154,6 @@ export class EliminationRecordsController {
   }
 
   @Put(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'updateEliminationRecordTranscription',
     summary: '排泄記録の文字起こしを置換',
@@ -186,8 +174,6 @@ export class EliminationRecordsController {
   }
 
   @Delete(':uid/transcription')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'deleteEliminationRecordTranscription',
     summary: '排泄記録の文字起こしを削除',
@@ -206,8 +192,6 @@ export class EliminationRecordsController {
   }
 
   @Post(':uid/extract')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     operationId: 'extractEliminationRecord',
     summary: '排泄記録から情報を抽出',
