@@ -862,10 +862,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EliminationRecordListResponseDto"
-      security:
+      security: &a10
         - JWT-auth: []
       summary: 利用者の排泄記録一覧を取得
-      tags: &a10
+      tags: &a11
         - elimination-records
     post:
       operationId: createEliminationRecord
@@ -889,10 +889,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EliminationRecordDto"
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: 排泄記録を作成
-      tags: *a10
+      tags: *a11
   /residents/{residentUid}/elimination-records/{uid}:
     patch:
       operationId: updateEliminationRecord
@@ -921,10 +920,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EliminationRecordDto"
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: 排泄記録を更新
-      tags: *a10
+      tags: *a11
     delete:
       operationId: deleteEliminationRecord
       parameters:
@@ -942,10 +940,9 @@ paths:
       responses:
         "200":
           description: 排泄記録の削除に成功
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: 排泄記録を削除
-      tags: *a10
+      tags: *a11
   /residents/{residentUid}/elimination-records/{uid}/transcription:
     get:
       operationId: getEliminationRecordTranscription
@@ -968,10 +965,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: 排泄記録の文字起こしを取得
-      tags: *a10
+      tags: *a11
     patch:
       operationId: appendEliminationRecordTranscription
       parameters:
@@ -999,10 +995,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: 排泄記録の文字起こしを追記
-      tags: *a10
+      tags: *a11
     put:
       operationId: updateEliminationRecordTranscription
       parameters:
@@ -1030,10 +1025,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: 排泄記録の文字起こしを置換
-      tags: *a10
+      tags: *a11
     delete:
       operationId: deleteEliminationRecordTranscription
       parameters:
@@ -1051,10 +1045,9 @@ paths:
       responses:
         "200":
           description: 排泄記録の文字起こし削除に成功
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: 排泄記録の文字起こしを削除
-      tags: *a10
+      tags: *a11
   /residents/{residentUid}/elimination-records/{uid}/extract:
     post:
       operationId: extractEliminationRecord
@@ -1077,10 +1070,9 @@ paths:
             application/json:
               schema:
                 type: string
-      security:
-        - JWT-auth: []
+      security: *a10
       summary: 排泄記録から情報を抽出
-      tags: *a10
+      tags: *a11
   /residents/{residentUid}/daily-records:
     get:
       operationId: getDailyRecords
@@ -1098,10 +1090,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DailyRecordListResponseDto"
-      security: &a11
+      security: &a12
         - JWT-auth: []
       summary: 利用者の日常記録一覧を取得
-      tags: &a12
+      tags: &a13
         - daily-records
     post:
       operationId: createDailyRecord
@@ -1125,9 +1117,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DailyRecordDto"
-      security: *a11
+      security: *a12
       summary: 日常記録を作成
-      tags: *a12
+      tags: *a13
   /residents/{residentUid}/daily-records/{uid}:
     get:
       operationId: getDailyRecord
@@ -1150,9 +1142,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DailyRecordDto"
-      security: *a11
+      security: *a12
       summary: 個別の日常記録を取得
-      tags: *a12
+      tags: *a13
     patch:
       operationId: updateDailyRecord
       parameters:
@@ -1180,9 +1172,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DailyRecordDto"
-      security: *a11
+      security: *a12
       summary: 日常記録を更新
-      tags: *a12
+      tags: *a13
     delete:
       operationId: deleteDailyRecord
       parameters:
@@ -1200,9 +1192,9 @@ paths:
       responses:
         "200":
           description: 日常記録の削除に成功
-      security: *a11
+      security: *a12
       summary: 日常記録を削除
-      tags: *a12
+      tags: *a13
   /residents/{residentUid}/daily-records/{uid}/transcription:
     get:
       operationId: getDailyRecordTranscription
@@ -1225,9 +1217,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security: *a11
+      security: *a12
       summary: 日常記録の文字起こしを取得
-      tags: *a12
+      tags: *a13
     patch:
       operationId: appendDailyRecordTranscription
       parameters:
@@ -1255,9 +1247,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security: *a11
+      security: *a12
       summary: 日常記録の文字起こしを追記
-      tags: *a12
+      tags: *a13
     put:
       operationId: updateDailyRecordTranscription
       parameters:
@@ -1285,9 +1277,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security: *a11
+      security: *a12
       summary: 日常記録の文字起こしを置換
-      tags: *a12
+      tags: *a13
     delete:
       operationId: deleteDailyRecordTranscription
       parameters:
@@ -1305,9 +1297,9 @@ paths:
       responses:
         "200":
           description: 日常記録の文字起こし削除に成功
-      security: *a11
+      security: *a12
       summary: 日常記録の文字起こしを削除
-      tags: *a12
+      tags: *a13
   /residents/{residentUid}/daily-records/{uid}/extract:
     get:
       operationId: extractDailyRecord
@@ -1330,9 +1322,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DailyRecordExtractedDto"
-      security: *a11
+      security: *a12
       summary: 日常記録を抽出
-      tags: *a12
+      tags: *a13
   /residents/{residentUid}/beverage-records:
     get:
       operationId: getBeverageRecords
@@ -1350,10 +1342,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BeverageRecordListResponseDto"
-      security: &a13
+      security: &a14
         - JWT-auth: []
       summary: 利用者の飲料記録一覧を取得
-      tags: &a14
+      tags: &a15
         - beverage-records
     post:
       operationId: createBeverageRecord
@@ -1377,9 +1369,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BeverageRecordDto"
-      security: *a13
+      security: *a14
       summary: 飲料記録を作成
-      tags: *a14
+      tags: *a15
   /residents/{residentUid}/beverage-records/{uid}:
     patch:
       operationId: updateBeverageRecord
@@ -1408,9 +1400,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BeverageRecordDto"
-      security: *a13
+      security: *a14
       summary: 飲料記録を更新
-      tags: *a14
+      tags: *a15
     delete:
       operationId: deleteBeverageRecord
       parameters:
@@ -1428,9 +1420,9 @@ paths:
       responses:
         "200":
           description: 飲料記録の削除に成功
-      security: *a13
+      security: *a14
       summary: 飲料記録を削除
-      tags: *a14
+      tags: *a15
   /residents/{residentUid}/beverage-records/{uid}/transcription:
     get:
       operationId: getBeverageRecordTranscription
@@ -1453,9 +1445,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security: *a13
+      security: *a14
       summary: 飲料記録の文字起こしを取得
-      tags: *a14
+      tags: *a15
     patch:
       operationId: appendBeverageRecordTranscription
       parameters:
@@ -1483,9 +1475,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security: *a13
+      security: *a14
       summary: 飲料記録の文字起こしを追記
-      tags: *a14
+      tags: *a15
     put:
       operationId: updateBeverageRecordTranscription
       parameters:
@@ -1513,9 +1505,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security: *a13
+      security: *a14
       summary: 飲料記録の文字起こしを置換
-      tags: *a14
+      tags: *a15
     delete:
       operationId: deleteBeverageRecordTranscription
       parameters:
@@ -1533,9 +1525,9 @@ paths:
       responses:
         "200":
           description: 飲料記録の文字起こし削除に成功
-      security: *a13
+      security: *a14
       summary: 飲料記録の文字起こしを削除
-      tags: *a14
+      tags: *a15
   /residents/{residentUid}/beverage-records/{uid}/extract:
     post:
       operationId: extractBeverageRecord
@@ -1558,9 +1550,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BeverageRecordExtractedDto"
-      security: *a13
+      security: *a14
       summary: 飲み物摂取記録から情報を抽出
-      tags: *a14
+      tags: *a15
   /assessments:
     get:
       operationId: getAssessments
@@ -1572,10 +1564,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AssessmentListResponseDto"
-      security: &a15
+      security: &a16
         - JWT-auth: []
       summary: アセスメント一覧を取得
-      tags: &a16
+      tags: &a17
         - assessments
     post:
       operationId: createAssessment
@@ -1593,9 +1585,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AssessmentDto"
-      security: *a15
+      security: *a16
       summary: アセスメントを作成
-      tags: *a16
+      tags: *a17
   /assessments/{uid}:
     get:
       operationId: getAssessment
@@ -1613,9 +1605,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AssessmentDto"
-      security: *a15
+      security: *a16
       summary: アセスメントの詳細を取得
-      tags: *a16
+      tags: *a17
     patch:
       operationId: updateAssessment
       parameters:
@@ -1638,9 +1630,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AssessmentDto"
-      security: *a15
+      security: *a16
       summary: アセスメントを更新
-      tags: *a16
+      tags: *a17
     delete:
       operationId: deleteAssessment
       parameters:
@@ -1653,9 +1645,9 @@ paths:
       responses:
         "200":
           description: アセスメントの削除に成功
-      security: *a15
+      security: *a16
       summary: アセスメントを削除
-      tags: *a16
+      tags: *a17
   /assessments/{uid}/transcription:
     get:
       operationId: getAssessmentTranscription
@@ -1673,9 +1665,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security: *a15
+      security: *a16
       summary: アセスメントの文字起こしを取得
-      tags: *a16
+      tags: *a17
     patch:
       operationId: appendAssessmentTranscription
       parameters:
@@ -1698,9 +1690,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security: *a15
+      security: *a16
       summary: アセスメントの文字起こしを追記
-      tags: *a16
+      tags: *a17
     put:
       operationId: updateAssessmentTranscription
       parameters:
@@ -1723,9 +1715,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TranscriptionDto"
-      security: *a15
+      security: *a16
       summary: アセスメントの文字起こしを置換
-      tags: *a16
+      tags: *a17
     delete:
       operationId: deleteAssessmentTranscription
       parameters:
@@ -1738,9 +1730,9 @@ paths:
       responses:
         "200":
           description: アセスメントの文字起こし削除に成功
-      security: *a15
+      security: *a16
       summary: アセスメントの文字起こしを削除
-      tags: *a16
+      tags: *a17
   /assessments/{uid}/summarize:
     post:
       operationId: summarizeAssessment
@@ -1758,9 +1750,9 @@ paths:
             application/json:
               schema:
                 type: string
-      security: *a15
+      security: *a16
       summary: アセスメントの要約を作成
-      tags: *a16
+      tags: *a17
   /assessments/{uid}/extract:
     post:
       operationId: extractAssessment
@@ -1778,19 +1770,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AssessmentExtractDto"
-      security: *a15
+      security: *a16
       summary: アセスメントの内容を抽出
-      tags: *a16
-  /tenants/{tenantUid}/subjects:
+      tags: *a17
+  /subjects:
     get:
       operationId: getSubjects
       parameters:
         - name: tenantUid
           required: false
           in: path
-          description: テナントUID（GLOBAL_ADMINの場合、省略すると全テナントのアセスメント対象者を取得）
-          schema:
-            type: string
+          description: テナントUID
+          schema: {}
       responses:
         "200":
           description: アセスメント対象者一覧の取得に成功
@@ -1798,10 +1789,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SubjectListResponseDto"
-      security:
+      security: &a18
         - JWT-auth: []
       summary: テナント内のアセスメント対象者一覧を取得
-      tags: &a17
+      tags: &a19
         - subjects
     post:
       operationId: createSubject
@@ -1810,8 +1801,7 @@ paths:
           required: true
           in: path
           description: テナントUID
-          schema:
-            type: string
+          schema: {}
       requestBody:
         required: true
         content:
@@ -1825,20 +1815,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SubjectDto"
-      security:
-        - JWT-auth: []
+      security: *a18
       summary: テナントにアセスメント対象者を作成
-      tags: *a17
-  /tenants/{tenantUid}/subjects/{uid}:
+      tags: *a19
+  /subjects/{uid}:
     get:
       operationId: getSubject
       parameters:
-        - name: tenantUid
-          required: true
-          in: path
-          description: テナントUID
-          schema:
-            type: string
         - name: uid
           required: true
           in: path
@@ -1852,19 +1835,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SubjectDto"
-      security:
-        - JWT-auth: []
+      security: *a18
       summary: アセスメント対象者の詳細を取得
-      tags: *a17
+      tags: *a19
     patch:
       operationId: updateSubject
       parameters:
-        - name: tenantUid
-          required: true
-          in: path
-          description: テナントUID
-          schema:
-            type: string
         - name: uid
           required: true
           in: path
@@ -1884,19 +1860,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SubjectDto"
-      security:
-        - JWT-auth: []
+      security: *a18
       summary: アセスメント対象者を更新
-      tags: *a17
+      tags: *a19
     delete:
       operationId: deleteSubject
       parameters:
-        - name: tenantUid
-          required: true
-          in: path
-          description: テナントUID
-          schema:
-            type: string
         - name: uid
           required: true
           in: path
@@ -1906,10 +1875,9 @@ paths:
       responses:
         "200":
           description: アセスメント対象者の削除に成功
-      security:
-        - JWT-auth: []
+      security: *a18
       summary: アセスメント対象者を削除
-      tags: *a17
+      tags: *a19
   /chats:
     post:
       operationId: createThread
@@ -1924,7 +1892,7 @@ paths:
       security:
         - JWT-auth: []
       summary: 新しいスレッドを作成
-      tags: &a18
+      tags: &a20
         - chats
     get:
       operationId: getThreads
@@ -1939,7 +1907,7 @@ paths:
       security:
         - JWT-auth: []
       summary: スレッド一覧を取得
-      tags: *a18
+      tags: *a20
   /chats/{uid}:
     get:
       operationId: getThread
@@ -1960,7 +1928,7 @@ paths:
       security:
         - JWT-auth: []
       summary: 特定のスレッドを取得
-      tags: *a18
+      tags: *a20
     put:
       operationId: updateThread
       parameters:
@@ -1982,7 +1950,7 @@ paths:
       security:
         - JWT-auth: []
       summary: スレッドを更新
-      tags: *a18
+      tags: *a20
     delete:
       operationId: deleteThread
       parameters:
@@ -1998,7 +1966,7 @@ paths:
       security:
         - JWT-auth: []
       summary: スレッドを削除
-      tags: *a18
+      tags: *a20
   /chats/{uid}/messages:
     post:
       operationId: createMessage
@@ -2021,7 +1989,7 @@ paths:
       security:
         - JWT-auth: []
       summary: メッセージを作成
-      tags: *a18
+      tags: *a20
   /qa/sessions:
     post:
       operationId: createQaSession
@@ -2039,10 +2007,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/QaSessionOutputDto"
-      security: &a19
+      security: &a21
         - JWT-auth: []
       summary: QAセッションを作成する
-      tags: &a20
+      tags: &a22
         - qa
     get:
       operationId: findQaSessionsByUser
@@ -2054,9 +2022,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/QaSessionListOutputDto"
-      security: *a19
+      security: *a21
       summary: ユーザーに紐づくQAセッション一覧を取得する
-      tags: *a20
+      tags: *a22
   /qa/sessions/{uid}:
     get:
       operationId: findQaSession
@@ -2076,9 +2044,9 @@ paths:
                 $ref: "#/components/schemas/QaSessionOutputDto"
         "404":
           description: QAセッションが見つかりません
-      security: *a19
+      security: *a21
       summary: QAセッションを取得する
-      tags: *a20
+      tags: *a22
     delete:
       operationId: deleteQaSession
       parameters:
@@ -2093,9 +2061,9 @@ paths:
           description: QAセッションが削除されました
         "404":
           description: QAセッションが見つかりません
-      security: *a19
+      security: *a21
       summary: QAセッションを削除する
-      tags: *a20
+      tags: *a22
   /qa/question-answers:
     post:
       operationId: addQuestionAnswer
@@ -2113,9 +2081,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/QuestionAnswerOutputDto"
-      security: *a19
+      security: *a21
       summary: QAセッションに質問回答を追加する
-      tags: *a20
+      tags: *a22
   /qa/question-answers/{uid}:
     put:
       operationId: updateQuestionAnswer
@@ -2141,9 +2109,9 @@ paths:
                 $ref: "#/components/schemas/QuestionAnswerOutputDto"
         "404":
           description: 質問回答が見つかりません
-      security: *a19
+      security: *a21
       summary: 質問回答を更新する
-      tags: *a20
+      tags: *a22
     delete:
       operationId: deleteQuestionAnswer
       parameters:
@@ -2158,9 +2126,9 @@ paths:
           description: 質問回答が削除されました
         "404":
           description: 質問回答が見つかりません
-      security: *a19
+      security: *a21
       summary: 質問回答を削除する
-      tags: *a20
+      tags: *a22
   /qa/sessions/{uid}/upsert-question-answers:
     post:
       operationId: upsertQuestionAnswers
@@ -2185,9 +2153,9 @@ paths:
                 $ref: "#/components/schemas/QaSessionOutputDto"
         "404":
           description: QAセッションが見つかりません
-      security: *a19
+      security: *a21
       summary: QAセッションに紐づく質問回答を一括更新（置き換え）する
-      tags: *a20
+      tags: *a22
   /qa/sessions/{uid}/extract:
     get:
       operationId: extractQaPairsFromTranscription
@@ -2205,9 +2173,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExtractQaPairsOutputDto"
-      security: *a19
+      security: *a21
       summary: 文字起こしから質問と回答のペアを抽出する
-      tags: *a20
+      tags: *a22
   /qa/sessions/{uid}/transcription:
     put:
       operationId: updateTranscription
@@ -2229,9 +2197,9 @@ paths:
           description: 音声ファイルの文字起こしが更新されました
         "404":
           description: QAセッションが見つかりません
-      security: *a19
+      security: *a21
       summary: QAセッションの音声ファイルの文字起こしを更新する
-      tags: *a20
+      tags: *a22
   /transcription:
     post:
       operationId: transcribeAudio
@@ -3468,9 +3436,6 @@ components:
           enum:
             - MALE
             - FEMALE
-        tenantUid:
-          type: string
-          description: テナントUID
         createdAt:
           format: date-time
           type: string
@@ -3483,7 +3448,6 @@ components:
         - givenNameFurigana
         - dateOfBirth
         - gender
-        - tenantUid
         - createdAt
     AssessmentDto:
       type: object

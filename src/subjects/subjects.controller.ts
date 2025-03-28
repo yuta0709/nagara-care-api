@@ -24,14 +24,14 @@ import { User } from '@prisma/client';
 import { SubjectListResponseDto } from './dtos/subject-list.output.dto';
 import { SubjectDto } from './dtos/subject.output.dto';
 
+@Authorize([UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
+@ApiBearerAuth('JWT-auth')
 @ApiTags('subjects')
-@Controller()
+@Controller('subjects')
 export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
-  @Get('tenants/:tenantUid/subjects')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
+  @Get()
   @ApiOperation({
     operationId: 'getSubjects',
     summary: 'テナント内のアセスメント対象者一覧を取得',
@@ -39,24 +39,18 @@ export class SubjectsController {
   @ApiParam({
     name: 'tenantUid',
     required: false,
-    description:
-      'テナントUID（GLOBAL_ADMINの場合、省略すると全テナントのアセスメント対象者を取得）',
+    description: 'テナントUID',
   })
   @ApiResponse({
     status: 200,
     description: 'アセスメント対象者一覧の取得に成功',
     type: SubjectListResponseDto,
   })
-  findByTenant(
-    @Param('tenantUid') tenantUid: string | null,
-    @UserDecorator() user: User,
-  ): Promise<SubjectListResponseDto> {
-    return this.subjectsService.findByTenant(tenantUid, user);
+  findByTenant(@UserDecorator() user: User): Promise<SubjectListResponseDto> {
+    return this.subjectsService.findByTenant(user);
   }
 
-  @Post('tenants/:tenantUid/subjects')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
+  @Post()
   @ApiOperation({
     operationId: 'createSubject',
     summary: 'テナントにアセスメント対象者を作成',
@@ -68,22 +62,17 @@ export class SubjectsController {
     type: SubjectDto,
   })
   createSubject(
-    @Param('tenantUid') tenantUid: string,
     @Body() input: SubjectCreateInputDto,
     @UserDecorator() user: User,
   ): Promise<SubjectDto> {
-    input.tenantUid = tenantUid;
     return this.subjectsService.create(input, user);
   }
 
-  @Get('tenants/:tenantUid/subjects/:uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
-  @ApiBearerAuth('JWT-auth')
+  @Get(':uid')
   @ApiOperation({
     operationId: 'getSubject',
     summary: 'アセスメント対象者の詳細を取得',
   })
-  @ApiParam({ name: 'tenantUid', description: 'テナントUID' })
   @ApiParam({ name: 'uid', description: 'アセスメント対象者UID' })
   @ApiResponse({
     status: 200,
@@ -91,21 +80,17 @@ export class SubjectsController {
     type: SubjectDto,
   })
   findOne(
-    @Param('tenantUid') tenantUid: string,
     @Param('uid') uid: string,
     @UserDecorator() user: User,
   ): Promise<SubjectDto> {
     return this.subjectsService.findOne(uid, user);
   }
 
-  @Patch('tenants/:tenantUid/subjects/:uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
+  @Patch(':uid')
   @ApiOperation({
     operationId: 'updateSubject',
     summary: 'アセスメント対象者を更新',
   })
-  @ApiParam({ name: 'tenantUid', description: 'テナントUID' })
   @ApiParam({ name: 'uid', description: 'アセスメント対象者UID' })
   @ApiResponse({
     status: 200,
@@ -113,7 +98,6 @@ export class SubjectsController {
     type: SubjectDto,
   })
   updateSubject(
-    @Param('tenantUid') tenantUid: string,
     @Param('uid') uid: string,
     @Body() input: SubjectUpdateInputDto,
     @UserDecorator() user: User,
@@ -121,21 +105,17 @@ export class SubjectsController {
     return this.subjectsService.update(uid, input, user);
   }
 
-  @Delete('tenants/:tenantUid/subjects/:uid')
-  @Authorize([UserRole.GLOBAL_ADMIN, UserRole.TENANT_ADMIN])
-  @ApiBearerAuth('JWT-auth')
+  @Delete(':uid')
   @ApiOperation({
     operationId: 'deleteSubject',
     summary: 'アセスメント対象者を削除',
   })
-  @ApiParam({ name: 'tenantUid', description: 'テナントUID' })
   @ApiParam({ name: 'uid', description: 'アセスメント対象者UID' })
   @ApiResponse({
     status: 200,
     description: 'アセスメント対象者の削除に成功',
   })
   deleteSubject(
-    @Param('tenantUid') tenantUid: string,
     @Param('uid') uid: string,
     @UserDecorator() user: User,
   ): Promise<void> {
