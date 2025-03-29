@@ -29,7 +29,7 @@ export async function extractData(
   ]);
 
   const llm = new ChatOpenAI({
-    model: 'gpt-4o',
+    model: 'gpt-4o-mini',
     temperature: 0,
   });
   const structured_llm = llm.withStructuredOutput(foodRecordSchema);
