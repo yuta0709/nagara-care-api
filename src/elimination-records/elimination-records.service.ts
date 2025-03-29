@@ -13,6 +13,8 @@ import { EliminationRecordListResponseDto } from './dtos/elimination-record-list
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
 import { checkPermission } from 'src/common/permission';
+import { extractData } from './llm/extractor';
+import { EliminationRecordExtractedDto } from './dtos/elimination-record-extracted.output.dto';
 
 @Injectable()
 export class EliminationRecordsService {
@@ -233,7 +235,10 @@ export class EliminationRecordsService {
     });
   }
 
-  async extract(uid: string, currentUser: User): Promise<string> {
+  async extract(
+    uid: string,
+    currentUser: User,
+  ): Promise<EliminationRecordExtractedDto> {
     const record = await this.prisma.eliminationRecord.findUniqueOrThrow({
       where: { uid },
       select: { transcription: true, tenantUid: true, residentUid: true },
@@ -241,12 +246,17 @@ export class EliminationRecordsService {
 
     checkPermission(currentUser, record.tenantUid);
 
-    if (!record.transcription) {
-      return '';
-    }
+    const currentState = await this.prisma.eliminationRecord.findUnique({
+      where: { uid },
+    });
 
-    // 将来的にLLMによる情報抽出を実装予定
-    // 現時点では空文字列を返す
-    return '';
+    const extractedData = await extractData(
+      record.transcription ?? '',
+      currentState,
+    );
+
+    return plainToInstance(EliminationRecordExtractedDto, extractedData, {
+      excludeExtraneousValues: true,
+    });
   }
 }

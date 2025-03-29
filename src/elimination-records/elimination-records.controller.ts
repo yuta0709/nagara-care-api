@@ -28,6 +28,7 @@ import { EliminationRecordListResponseDto } from './dtos/elimination-record-list
 import { EliminationRecordDto } from './dtos/elimination-record.output.dto';
 import { TranscriptionInputDto } from './dtos/transcription.input.dto';
 import { TranscriptionDto } from './dtos/transcription.output.dto';
+import { EliminationRecordExtractedDto } from './dtos/elimination-record-extracted.output.dto';
 
 @Authorize([UserRole.TENANT_ADMIN, UserRole.CAREGIVER])
 @ApiBearerAuth('JWT-auth')
@@ -201,12 +202,12 @@ export class EliminationRecordsController {
   @ApiResponse({
     status: 200,
     description: '排泄記録からの情報抽出に成功',
-    type: String,
+    type: EliminationRecordExtractedDto,
   })
   extract(
     @Param('uid') uid: string,
     @UserDecorator() user: User,
-  ): Promise<string> {
+  ): Promise<EliminationRecordExtractedDto> {
     return this.eliminationRecordsService.extract(uid, user);
   }
 }
