@@ -26,7 +26,7 @@ export async function extractQuestionsAndAnswers(transcript: string) {
   ]);
 
   const llm = new ChatOpenAI({
-    model: 'gpt-4o',
+    model: 'gpt-4o-mini',
     temperature: 0,
   });
   const structured_llm = llm.withStructuredOutput(questionAnswerResponseSchema);
